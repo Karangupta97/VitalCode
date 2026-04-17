@@ -1,805 +1,425 @@
-import React, { useEffect, useState } from 'react';
-import { useDoctorStore } from '../../store/doctorStore';
-import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
+  FiAlertTriangle,
+  FiRefreshCw,
+  FiShield,
+  FiSearch,
   FiUsers,
   FiCalendar,
   FiFileText,
-  FiMapPin,
-  FiLogOut,
-  FiMenu,
-  FiX,
-  FiHome,
   FiUser,
-  FiSettings,
-  FiArrowRight,
-  FiActivity,
-  FiClock,
-  FiChevronRight,
   FiMail,
   FiPhone,
+  FiMapPin,
   FiAward,
-  FiBookOpen,
-  FiGrid,
-  FiBriefcase,
-  FiSearch,
-  FiShield,
 } from 'react-icons/fi';
+import DoctorDashboardLayout from '../../components/Doctor/DoctorDashboardLayout';
+import { useDoctorStore } from '../../store/doctorStore';
 
-// ─── Animation Variants ──────────────────────────────────────────────────────
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
-  }),
-};
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.92 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-const slideIn = {
-  hidden: { x: -280, opacity: 0 },
-  visible: { x: 0, opacity: 1, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
-  exit: { x: -280, opacity: 0, transition: { duration: 0.25 } },
-};
-
-// ─── Sidebar Navigation Items ────────────────────────────────────────────────
-
-const navItems = [
-  { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
-  { label: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
-  { label: 'Emergency Folder', icon: FiShield, path: '/doctor/emergency-folder' },
-  { label: 'Shared Reports', icon: FiFileText, path: '/doctor/shared-reports' },
-  { label: 'Patients', icon: FiUsers, path: '/doctor/patients' },
-  { label: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
-  { label: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },
-  { label: 'Affiliated Hospitals', icon: FiMapPin, path: '/doctor/hospitals' },
-  { label: 'Profile Settings', icon: FiSettings, path: '/doctor/profile' },
+const quickStats = [
+  { title: "Today's Appointments", value: '24', note: '4 waiting confirmations' },
+  { title: 'Prescription Clearance', value: '91%', note: '3 pending biometric approvals' },
 ];
 
-// ─── Stat Cards Data ─────────────────────────────────────────────────────────
-
-const statCards = [
+const stockSummary = [
   {
-    label: "Today's Patients",
-    value: '—',
-    sub: 'Check back soon',
-    icon: FiUsers,
-    gradient: 'linear-gradient(135deg, #6s366f1, #8b5cf6)',
-    softBg: 'rgba(99,102,241,0.10)',
-    accent: '#6366f1',
+    title: 'Low Stock',
+    note: 'Metformin, Insulin, Vitamin B12',
+    icon: FiAlertTriangle,
+    iconColor: '#134e4a',
+    iconBg: 'rgba(16,185,129,0.14)',
   },
   {
-    label: 'Appointments',
-    value: '—',
-    sub: 'Upcoming',
-    icon: FiCalendar,
-    gradient: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
-    softBg: 'rgba(14,165,233,0.10)',
-    accent: '#0ea5e9',
-  },
-  {
-    label: 'Medical Records',
-    value: '—',
-    sub: 'Total records',
-    icon: FiFileText,
-    gradient: 'linear-gradient(135deg, #10b981, #34d399)',
-    softBg: 'rgba(16,185,129,0.10)',
-    accent: '#10b981',
-  },
-  {
-    label: 'Hospitals',
-    value: '—',
-    sub: 'Affiliated',
-    icon: FiMapPin,
-    gradient: 'linear-gradient(135deg, #f97316, #fb923c)',
-    softBg: 'rgba(249,115,22,0.10)',
-    accent: '#f97316',
+    title: 'Restocking',
+    note: 'Restocking by evening',
+    icon: FiRefreshCw,
+    iconColor: '#0f766e',
+    iconBg: 'rgba(20,184,166,0.14)',
   },
 ];
 
-// ─── Quick Actions ───────────────────────────────────────────────────────────
+const pendingRows = [
+  { patient: 'Sarah Smith', medicine: 'Metformin 500mg', status: 'Low Stock', statusKey: 'status-low-stock' },
+  { patient: 'John Doe', medicine: 'Amoxicillin 500mg', status: 'Pending', statusKey: 'status-pending' },
+  { patient: 'Sam Emmanuel', medicine: 'Lisinopril 10mg', status: 'Pending', statusKey: 'status-pending' },
+  { patient: 'John Samuel', medicine: 'Paracetamol 650mg', status: 'Ready', statusKey: 'status-ready' },
+];
+
+const pendingStatusStyles = {
+  'Low Stock': { background: '#FFEAEA', color: '#D13B3B', border: '1px solid rgba(209,59,59,0.2)' },
+  Pending: { background: '#FFF4CC', color: '#D98A00', border: '1px solid rgba(217,138,0,0.22)' },
+  Ready: { background: '#DFF7E6', color: '#179B4C', border: '1px solid rgba(23,155,76,0.2)' },
+};
 
 const quickActions = [
-  {
-    label: 'Find Patient',
-    description: 'Search patients by UMID',
-    icon: FiSearch,
-    path: '/doctor/find-patient',
-    gradient: 'from-cyan-500 to-blue-600',
-    softBg: 'rgba(6,182,212,0.08)',
-    accent: '#06b6d4',
-  },
-  {
-    label: 'View Patients',
-    description: 'See your patient list and records',
-    icon: FiUsers,
-    path: '/doctor/patients',
-    gradient: 'from-indigo-500 to-violet-600',
-    softBg: 'rgba(99,102,241,0.08)',
-    accent: '#6366f1',
-  },
-  {
-    label: 'Appointments',
-    description: 'Schedule and manage appointments',
-    icon: FiCalendar,
-    path: '/doctor/appointments',
-    gradient: 'from-sky-500 to-blue-600',
-    softBg: 'rgba(14,165,233,0.08)',
-    accent: '#0ea5e9',
-  },
-  {
-    label: 'Medical Records',
-    description: 'Browse and manage medical files',
-    icon: FiFileText,
-    path: '/doctor/medical-records',
-    gradient: 'from-emerald-500 to-teal-600',
-    softBg: 'rgba(16,185,129,0.08)',
-    accent: '#10b981',
-  },
-  {
-    label: 'Hospital Network',
-    description: 'View affiliated hospitals',
-    icon: FiMapPin,
-    path: '/doctor/hospitals',
-    gradient: 'from-orange-500 to-amber-500',
-    softBg: 'rgba(249,115,22,0.08)',
-    accent: '#f97316',
-  },
-  {
-    label: 'My Profile',
-    description: 'Update your profile details',
-    icon: FiUser,
-    path: '/doctor/profile',
-    gradient: 'from-rose-500 to-pink-600',
-    softBg: 'rgba(244,63,94,0.08)',
-    accent: '#f43f5e',
-  },
-  {
-    label: 'Activity Log',
-    description: 'Review recent activity',
-    icon: FiActivity,
-    path: '/doctor/dashboard',
-    gradient: 'from-violet-500 to-purple-600',
-    softBg: 'rgba(139,92,246,0.08)',
-    accent: '#8b5cf6',
-  },
-  {
-    label: 'Shared Reports',
-    description: 'View reports shared by patients',
-    icon: FiShield,
-    path: '/doctor/shared-reports',
-    gradient: 'from-fuchsia-500 to-pink-600',
-    softBg: 'rgba(217,70,239,0.08)',
-    accent: '#d946ef',
-  },
+  { title: 'Find Patient', desc: 'Search records by UMID', icon: FiSearch, to: '/doctor/find-patient' },
+  { title: 'Appointments', desc: 'Manage consultations', icon: FiCalendar, to: '/doctor/appointments' },
+  { title: 'Patients', desc: 'View patient directory', icon: FiUsers, to: '/doctor/patients' },
+  { title: 'Medical Records', desc: 'Open reports and files', icon: FiFileText, to: '/doctor/medical-records' },
 ];
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 const DoctorDashboard = () => {
-  const { isAuthenticated, doctor, getDoctorProfile, logoutDoctor, isLoading } = useDoctorStore();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      getDoctorProfile();
-    }
-  }, [isAuthenticated, getDoctorProfile]);
-
-  const handleLogout = async () => {
-    await logoutDoctor();
-    navigate('/doctor/login');
-  };
-
-  if (isLoading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: 'linear-gradient(135deg, #f8fafd 0%, #eef1ff 100%)' }}
-      >
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-          style={{
-            width: 48,
-            height: 48,
-            border: '3px solid #e2e8f0',
-            borderTopColor: '#6366f1',
-            borderRadius: '50%',
-          }}
-        />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/doctor/login" />;
-  }
-
-  const firstName = doctor?.fullName?.split(' ')[0] || 'Doctor';
-  const avatarUrl =
-    doctor?.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor?.fullName || 'Doctor')}&background=6366f1&color=fff&bold=true&size=128`;
-
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  const currentHour = new Date().getHours();
-  const greeting =
-    currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening';
-
-  // ─── Account Info Items ──────────────────────────────────────────────────
-
-  const infoItems = [
-    { label: 'Doctor ID', value: doctor?.doctorId, icon: FiAward },
-    { label: 'Full Name', value: doctor?.fullName, icon: FiUser },
+  const { doctor } = useDoctorStore();
+  const doctorInfoItems = [
+    { label: 'Doctor Name', value: doctor?.fullName, icon: FiUser },
     { label: 'Email', value: doctor?.email, icon: FiMail },
     { label: 'Phone', value: doctor?.phone, icon: FiPhone },
-    { label: 'Registration No.', value: doctor?.medicalRegistrationNumber, icon: FiBookOpen },
-    { label: 'Medical Council', value: doctor?.councilName, icon: FiBriefcase },
+    { label: 'Specialization', value: doctor?.specialization, icon: FiAward },
+    { label: 'Registration No.', value: doctor?.medicalRegistrationNumber, icon: FiFileText },
     { label: 'State', value: doctor?.state, icon: FiMapPin },
-    { label: 'Specialization', value: doctor?.specialization, icon: FiActivity },
   ];
 
-  // ─── Sidebar Content ────────────────────────────────────────────────────
-
-  const SidebarContent = () => (
-    <div className="h-full flex flex-col" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #252A61 100%)' }}>
-      {/* Sidebar Header */}
-      <div
-        className="flex items-center gap-3 px-5 py-5"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        <div
-          className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
-          style={{ border: '2px solid rgba(255,255,255,0.2)' }}
-        >
-          <img src={avatarUrl} alt={doctor?.fullName} className="w-full h-full object-cover" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p
-            className="truncate"
-            style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem' }}
-          >
-            Dr. {firstName}
-          </p>
-          <p
-            className="truncate"
-            style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}
-          >
-            {doctor?.specialization || 'Physician'}
-          </p>
-        </div>
-        {/* Close button on mobile */}
-        <button
-          className="lg:hidden p-1.5 rounded-lg"
-          style={{ background: 'rgba(255,255,255,0.08)' }}
-          onClick={() => setSidebarOpen(false)}
-        >
-          <FiX style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem' }} />
-        </button>
-      </div>
-
-      {/* Nav Links */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.label}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
-              style={{
-                background: isActive ? 'rgba(99,102,241,0.2)' : 'transparent',
-                color: isActive ? '#fff' : 'rgba(255,255,255,0.6)',
-                fontWeight: isActive ? 600 : 500,
-                fontSize: '0.88rem',
-                border: isActive ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              <Icon style={{ fontSize: '1.1rem', flexShrink: 0 }} />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Logout */}
-      <div className="px-3 pb-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
-          style={{
-            background: 'rgba(244,63,94,0.1)',
-            color: '#fca5a5',
-            fontWeight: 500,
-            fontSize: '0.88rem',
-            border: '1px solid rgba(244,63,94,0.15)',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(244,63,94,0.18)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(244,63,94,0.1)')}
-        >
-          <FiLogOut style={{ fontSize: '1.1rem' }} />
-          <span>Logout</span>
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <>
+    <DoctorDashboardLayout pageTitle="Doctor Dashboard">
       <Helmet>
-        <title>Doctor Dashboard | Medicare</title>
-        <meta name="description" content="Medicare Doctor Dashboard — manage patients, appointments, and medical records." />
+        <title>Doctor Dashboard | VitalCode</title>
+        <meta
+          name="description"
+          content="Doctor command center for prescriptions, emergency alerts, and pharmacy status."
+        />
       </Helmet>
 
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet"
-      />
-
-      <div className="min-h-screen flex" style={{ background: '#f8fafd', fontFamily: "'Inter', sans-serif" }}>
-        {/* ── Desktop Sidebar ── */}
-        <aside className="hidden lg:block flex-shrink-0" style={{ width: 264 }}>
-          <div className="fixed top-0 left-0 h-screen" style={{ width: 264, zIndex: 40 }}>
-            <SidebarContent />
-          </div>
-        </aside>
-
-        {/* ── Mobile Sidebar Overlay ── */}
-        <AnimatePresence>
-          {sidebarOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setSidebarOpen(false)}
-                className="fixed inset-0 lg:hidden"
-                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 50 }}
-              />
-              <motion.div
-                variants={slideIn}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="fixed top-0 left-0 bottom-0 lg:hidden"
-                style={{ width: 280, zIndex: 51 }}
-              >
-                <SidebarContent />
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* ── Main Content ── */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* ── Top Header Bar ── */}
-          <header
-            className="sticky top-0"
+      <div className="max-w-[1600px] mx-auto space-y-5 sm:space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <motion.section
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="xl:col-span-9 overflow-hidden rounded-[18px]"
             style={{
-              background: 'rgba(255,255,255,0.85)',
-              backdropFilter: 'blur(16px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-              borderBottom: '1px solid #e8edf5',
-              zIndex: 30,
+              background:
+                'linear-gradient(132deg, rgba(47,110,203,0.54) 0%, rgba(15,141,137,0.42) 56%, rgba(27,201,183,0.34) 100%)',
+              border: '1px solid rgba(255,255,255,0.34)',
+              boxShadow: '0 20px 42px rgba(6, 40, 57, 0.2), inset 0 1px 0 rgba(255,255,255,0.28)',
+              backdropFilter: 'blur(18px) saturate(145%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(145%)',
             }}
           >
-            <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
-              {/* Left: hamburger + page title */}
-              <div className="flex items-center gap-3">
-                <button
-                  className="lg:hidden p-2 rounded-xl"
-                  style={{ background: '#f1f5f9' }}
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <FiMenu style={{ fontSize: '1.2rem', color: '#334155' }} />
-                </button>
-                <div>
-                  <h1 style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
-                    Dashboard
-                  </h1>
-                  <p className="hidden sm:block" style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
-                    {currentDate}
-                  </p>
-                </div>
-              </div>
+            <div className="relative px-6 sm:px-8 py-6 sm:py-7">
+              <div
+                className="absolute right-[-30px] top-[-20px] w-[220px] h-[220px] rounded-full"
+                style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%)' }}
+              />
+              <div
+                className="absolute left-[45%] bottom-[-60px] w-[260px] h-[220px] rounded-full"
+                style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.14), transparent 70%)' }}
+              />
 
-              {/* Right: profile + logout */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="hidden sm:flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                  <img
-                    src={avatarUrl}
-                    alt={doctor?.fullName}
-                    className="rounded-full object-cover"
-                    style={{ width: 32, height: 32 }}
-                  />
-                  <div>
-                    <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1e293b', lineHeight: 1.2 }}>
-                      Dr. {firstName}
-                    </p>
-                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>
-                      {doctor?.specialization || 'Physician'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all duration-200"
+              <div className="relative z-10">
+                <div
+                  className="inline-flex items-center gap-2 rounded-full px-3 py-1"
                   style={{
-                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                    color: '#fff',
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 16px rgba(99,102,241,0.3)',
+                    background: 'rgba(255,255,255,0.18)',
+                    border: '0.5px solid rgba(255,255,255,0.45)',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.28)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
                 >
-                  <FiLogOut style={{ fontSize: '0.9rem' }} />
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
+                  <FiShield style={{ color: '#e9fdf8', fontSize: '0.85rem' }} />
+                  <span style={{ color: '#eafcff', fontWeight: 700, fontSize: '0.95rem' }}>Secure Care Hub</span>
+                </div>
+
+                <h2
+                  className="mt-4"
+                  style={{
+                    color: '#ffffff',
+                    fontWeight: 800,
+                    fontSize: 'clamp(1.75rem,3.1vw,2.95rem)',
+                    lineHeight: 1.15,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  Welcome back, Dr. {doctor?.fullName || 'Sara Abraham'}
+                </h2>
+
+                <p
+                  className="mt-3 max-w-3xl"
+                  style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(1rem,1.4vw,1.08rem)', fontWeight: 500 }}
+                >
+                  Track prescriptions, authorize access, and monitor emergency records from one secure workspace.
+                </p>
+
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <button
+                    className="px-5 py-2.5 rounded-[12px]"
+                    style={{
+                      background: 'rgba(255,255,255,0.82)',
+                      color: '#0f635d',
+                      fontWeight: 800,
+                      fontSize: '1.05rem',
+                      border: '1px solid rgba(255,255,255,0.58)',
+                      boxShadow: '0 10px 24px rgba(5, 55, 52, 0.16)',
+                      backdropFilter: 'blur(7px)',
+                      WebkitBackdropFilter: 'blur(7px)',
+                    }}
+                  >
+                    + New Prescription
+                  </button>
+                  <button
+                    className="px-5 py-2.5 rounded-[12px]"
+                    style={{
+                      background: 'rgba(255,255,255,0.2)',
+                      color: '#f8ffff',
+                      fontWeight: 700,
+                      fontSize: '1.05rem',
+                      border: '0.5px solid rgba(255,255,255,0.45)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                    }}
+                  >
+                    Open Queue
+                  </button>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {[
+                    { label: 'Pending Cases', value: 12 },
+                    { label: 'Emergency Alerts', value: 2 },
+                    { label: 'Biometry Required', value: 3 },
+                  ].map((chip) => (
+                    <div
+                      key={chip.label}
+                      className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
+                      style={{
+                        background: 'rgba(255,255,255,0.16)',
+                        border: '0.5px solid rgba(255,255,255,0.4)',
+                        color: '#f5ffff',
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.26)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                      }}
+                    >
+                      <span>{chip.label}</span>
+                      <span
+                        className="inline-flex items-center justify-center rounded-full"
+                        style={{
+                          width: 24,
+                          height: 24,
+                          background: 'rgba(28,61,119,0.35)',
+                          fontSize: '0.95rem',
+                        }}
+                      >
+                        {chip.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </header>
+          </motion.section>
 
-          {/* ── Page Content ── */}
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8 overflow-y-auto">
-            {/* ── Welcome Banner ── */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="relative overflow-hidden rounded-2xl sm:rounded-3xl mb-6 lg:mb-8"
-              style={{
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #252A61 75%, #1e3a5f 100%)',
-                minHeight: 'clamp(160px, 25vw, 220px)',
-              }}
-            >
-              {/* Decorative blobs */}
-              <div className="absolute pointer-events-none" style={{ top: '-30%', right: '-5%', width: 'clamp(180px,40vw,400px)', height: 'clamp(180px,40vw,400px)', background: 'radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)', filter: 'blur(50px)' }} />
-              <div className="absolute pointer-events-none" style={{ bottom: '-20%', left: '-5%', width: 'clamp(150px,30vw,300px)', height: 'clamp(150px,30vw,300px)', background: 'radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%)', filter: 'blur(50px)' }} />
-              {/* Grid overlay */}
-              <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-
-              <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 p-5 sm:p-7 lg:p-9">
-                {/* Avatar */}
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                  className="flex-shrink-0"
-                >
-                  <div
-                    className="rounded-2xl overflow-hidden"
-                    style={{
-                      width: 'clamp(64px, 10vw, 88px)',
-                      height: 'clamp(64px, 10vw, 88px)',
-                      border: '3px solid rgba(255,255,255,0.2)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-                    }}
-                  >
-                    <img src={avatarUrl} alt={doctor?.fullName} className="w-full h-full object-cover" />
-                  </div>
-                </motion.div>
-
-                {/* Greeting */}
-                <div className="text-center sm:text-left flex-1">
-                  <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.4 }}
-                    className="flex items-center justify-center sm:justify-start gap-2 mb-1"
-                  >
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                      {greeting.toUpperCase()},
-                    </span>
-                  </motion.p>
-                  <motion.h2
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.4 }}
-                    style={{
-                      fontSize: 'clamp(1.4rem, 3.5vw, 2.2rem)',
-                      fontWeight: 800,
-                      color: '#fff',
-                      letterSpacing: '-0.02em',
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    Dr. {doctor?.fullName || 'Doctor'}
-                  </motion.h2>
-                  <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.4 }}
-                    style={{ color: 'rgba(255,255,255,0.55)', fontSize: 'clamp(0.8rem, 1.8vw, 0.95rem)', fontWeight: 500, marginTop: '0.25rem' }}
-                  >
-                    {doctor?.specialization || 'General Physician'} • {currentDate}
-                  </motion.p>
-
-                  {/* Badges */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.4 }}
-                    className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3"
-                  >
-                    {doctor?.medicalRegistrationNumber && (
-                      <div
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                        style={{
-                          background: 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          backdropFilter: 'blur(8px)',
-                        }}
-                      >
-                        <FiAward style={{ color: '#facc15', fontSize: '0.8rem' }} />
-                        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.75rem', fontWeight: 600 }}>
-                          Reg: {doctor.medicalRegistrationNumber}
-                        </span>
-                      </div>
-                    )}
-                    {doctor?.councilName && (
-                      <div
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                        style={{
-                          background: 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          backdropFilter: 'blur(8px)',
-                        }}
-                      >
-                        <FiBriefcase style={{ color: '#67e8f9', fontSize: '0.8rem' }} />
-                        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.75rem', fontWeight: 600 }}>
-                          {doctor.councilName}
-                        </span>
-                      </div>
-                    )}
-                  </motion.div>
-                </div>
-              </div>
-            </motion.section>
-
-            {/* ── Stats Cards ── */}
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              animate="visible"
-              className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 mb-6 lg:mb-8"
-            >
-              {statCards.map((card, i) => {
-                const Icon = card.icon;
-                return (
-                  <motion.div
-                    key={card.label}
-                    variants={fadeUp}
-                    custom={i}
-                    whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(15,23,42,0.12)' }}
-                    className="rounded-2xl overflow-hidden cursor-default"
-                    style={{
-                      background: '#fff',
-                      border: '1.5px solid #e8edf5',
-                      boxShadow: '0 2px 12px rgba(15,23,42,0.04)',
-                      transition: 'box-shadow 0.3s, transform 0.3s',
-                    }}
-                  >
-                    <div className="p-4 sm:p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div
-                          className="flex items-center justify-center rounded-xl"
-                          style={{ width: 42, height: 42, background: card.softBg }}
-                        >
-                          <Icon style={{ color: card.accent, fontSize: '1.15rem' }} />
-                        </div>
-                        <div
-                          className="rounded-lg px-2 py-0.5"
-                          style={{ background: card.softBg }}
-                        >
-                          <FiActivity style={{ color: card.accent, fontSize: '0.75rem' }} />
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-                        {card.value}
-                      </p>
-                      <p style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500, marginTop: '0.25rem' }}>
-                        {card.label}
-                      </p>
-                      <p style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>
-                        {card.sub}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-
-            {/* ── Quick Actions ── */}
-            <motion.section
-              variants={stagger}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="mb-6 lg:mb-8"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.3rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
-                    Quick Actions
-                  </h3>
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 500 }}>
-                    Jump to frequently used features
-                  </p>
-                </div>
-                <div
-                  className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full"
-                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.12)' }}
-                >
-                  <FiGrid style={{ color: '#6366f1', fontSize: '0.75rem' }} />
-                  <span style={{ color: '#6366f1', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em' }}>
-                    ACTIONS
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                {quickActions.map((action, i) => {
-                  const Icon = action.icon;
-                  return (
-                    <motion.div key={action.label} variants={scaleIn}>
-                      <Link
-                        to={action.path}
-                        className="group flex items-start gap-4 p-4 sm:p-5 rounded-2xl transition-all duration-300"
-                        style={{
-                          background: '#fff',
-                          border: '1.5px solid #e8edf5',
-                          boxShadow: '0 2px 12px rgba(15,23,42,0.04)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.boxShadow = '0 16px 48px rgba(15,23,42,0.10)';
-                          e.currentTarget.style.transform = 'translateY(-3px)';
-                          e.currentTarget.style.borderColor = `${action.accent}40`;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.boxShadow = '0 2px 12px rgba(15,23,42,0.04)';
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.borderColor = '#e8edf5';
-                        }}
-                      >
-                        <div
-                          className="flex items-center justify-center rounded-xl flex-shrink-0"
-                          style={{ width: 48, height: 48, background: action.softBg }}
-                        >
-                          <Icon style={{ color: action.accent, fontSize: '1.3rem' }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0f172a' }}>
-                              {action.label}
-                            </h4>
-                            <FiChevronRight
-                              className="group-hover:translate-x-1 transition-transform duration-200"
-                              style={{ color: '#cbd5e1', fontSize: '1rem' }}
-                            />
-                          </div>
-                          <p style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500, marginTop: '0.15rem' }}>
-                            {action.description}
-                          </p>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.section>
-
-            {/* ── Account Information ── */}
-            <motion.section
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55 }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.3rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
-                    Account Information
-                  </h3>
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 500 }}>
-                    Your registered details
-                  </p>
-                </div>
-                <div
-                  className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full"
-                  style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.12)' }}
-                >
-                  <FiUser style={{ color: '#10b981', fontSize: '0.75rem' }} />
-                  <span style={{ color: '#10b981', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em' }}>
-                    PROFILE
-                  </span>
-                </div>
-              </div>
-
+          <motion.aside
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.08 }}
+            className="xl:col-span-3 flex flex-col gap-5"
+          >
+            {quickStats.map((item) => (
               <div
-                className="rounded-2xl overflow-hidden"
+                key={item.title}
+                className="rounded-[18px] p-5"
                 style={{
-                  background: '#fff',
-                  border: '1.5px solid #e8edf5',
-                  boxShadow: '0 2px 12px rgba(15,23,42,0.04)',
+                  background: 'linear-gradient(150deg, rgba(255,255,255,0.48), rgba(221,244,244,0.36))',
+                  border: '1px solid rgba(255,255,255,0.46)',
+                  boxShadow: '0 16px 30px rgba(10, 55, 61, 0.12), inset 0 1px 0 rgba(255,255,255,0.38)',
+                  backdropFilter: 'blur(16px) saturate(135%)',
+                  WebkitBackdropFilter: 'blur(16px) saturate(135%)',
                 }}
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                  {infoItems.map((item, i) => {
-                    const Icon = item.icon;
-                    return (
-                      <div
-                        key={item.label}
-                        className="flex items-start gap-3 p-4 sm:p-5"
-                        style={{
-                          borderBottom: i < infoItems.length - (window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 2 : 1) ? '1px solid #f1f5f9' : 'none',
-                          borderRight: '1px solid #f1f5f9',
-                        }}
-                      >
-                        <div
-                          className="flex items-center justify-center rounded-lg flex-shrink-0"
-                          style={{ width: 36, height: 36, background: '#f1f5f9' }}
-                        >
-                          <Icon style={{ color: '#64748b', fontSize: '0.95rem' }} />
-                        </div>
-                        <div className="min-w-0">
-                          <p style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                            {item.label}
-                          </p>
-                          <p
-                            className="truncate"
-                            style={{ fontSize: '0.88rem', color: '#1e293b', fontWeight: 600, marginTop: '0.1rem' }}
-                          >
-                            {item.value || 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <p style={{ color: '#35686a', fontSize: '1.02rem', fontWeight: 600 }}>{item.title}</p>
+                <p className="mt-1" style={{ color: '#0f4d4f', fontSize: '2.1rem', fontWeight: 800, lineHeight: 1.1 }}>
+                  {item.value}
+                </p>
+                <p className="mt-2" style={{ color: '#457b7e', fontSize: '0.96rem', fontWeight: 500 }}>{item.note}</p>
               </div>
-            </motion.section>
+            ))}
+          </motion.aside>
+        </div>
 
-            {/* Bottom Spacer */}
-            <div style={{ height: '2rem' }} />
-          </main>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="rounded-[18px] p-5 sm:p-6"
+            style={{
+              background: 'linear-gradient(145deg, rgba(255,255,255,0.96), rgba(236,248,249,0.95))',
+              border: '0.5px solid rgba(0,0,0,0.08)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            }}
+          >
+            <h3 style={{ color: '#163c3f', fontSize: 'clamp(1.45rem,2.4vw,2rem)', fontWeight: 700 }}>Pharmacy Stock Summary</h3>
+
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {stockSummary.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <article
+                    key={card.title}
+                    className="rounded-[14px] px-5 py-8 text-center"
+                    style={{
+                      background: 'linear-gradient(145deg, rgba(228,243,247,0.75), rgba(213,235,240,0.78))',
+                      border: '0.5px solid rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div
+                      className="mx-auto w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ background: card.iconBg }}
+                    >
+                      <Icon style={{ color: card.iconColor, fontSize: '1.65rem' }} />
+                    </div>
+                    <p className="mt-4" style={{ color: '#143d3f', fontWeight: 800, fontSize: '1.9rem' }}>{card.title}</p>
+                    <p className="mt-2" style={{ color: '#3e7679', fontSize: '1rem', fontWeight: 500 }}>{card.note}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </motion.section>
+
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.14 }}
+            className="rounded-[18px] p-5 sm:p-6"
+            style={{
+              background: 'linear-gradient(145deg, rgba(246,252,252,0.95), rgba(224,245,243,0.94))',
+              border: '0.5px solid rgba(0,0,0,0.08)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            }}
+          >
+            <h3 style={{ color: '#163c3f', fontSize: 'clamp(1.45rem,2.4vw,2rem)', fontWeight: 700 }}>Pending Prescriptions to Give</h3>
+
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[560px]">
+                <tbody>
+                  {pendingRows.map((row) => (
+                    <tr key={`${row.patient}-${row.medicine}`} style={{ borderBottom: '0.5px solid rgba(19,78,74,0.14)' }}>
+                      <td style={{ padding: '0.78rem 0.3rem 0.78rem 0', color: '#1a4043', fontWeight: 700, fontSize: '1.18rem' }}>
+                        {row.patient}
+                      </td>
+                      <td style={{ padding: '0.78rem 0.3rem', color: '#2f6f72', fontWeight: 500, fontSize: '1.18rem' }}>
+                        {row.medicine}
+                      </td>
+                      <td style={{ padding: '0.78rem 0 0.78rem 0.3rem', textAlign: 'right' }}>
+                        <span
+                          className={`status-pill vc-status-badge ${row.statusKey}`}
+                          style={{
+                            fontSize: '0.92rem',
+                            fontWeight: 700,
+                            background: pendingStatusStyles[row.status].background,
+                            color: pendingStatusStyles[row.status].color,
+                            border: pendingStatusStyles[row.status].border,
+                          }}
+                        >
+                          {row.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.section>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.18 }}
+            className="xl:col-span-5 rounded-[18px] p-5 sm:p-6"
+            style={{
+              background: 'linear-gradient(145deg, rgba(248,253,253,0.96), rgba(229,245,244,0.92))',
+              border: '0.5px solid rgba(0,0,0,0.08)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            }}
+          >
+            <h3 style={{ color: '#163c3f', fontSize: 'clamp(1.3rem,2vw,1.7rem)', fontWeight: 700 }}>Quick Actions</h3>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link
+                    key={action.title}
+                    to={action.to}
+                    className="rounded-[14px] px-4 py-4 transition-all duration-200"
+                    style={{
+                      background: 'rgba(222,241,244,0.8)',
+                      border: '0.5px solid rgba(0,0,0,0.08)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(15, 93, 101, 0.14)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ background: 'rgba(20, 151, 145, 0.16)' }}
+                      >
+                        <Icon style={{ color: '#116d6a', fontSize: '1.1rem' }} />
+                      </div>
+                      <div>
+                        <p style={{ color: '#184244', fontWeight: 700, fontSize: '1rem' }}>{action.title}</p>
+                        <p style={{ color: '#467679', fontSize: '0.9rem', marginTop: 2 }}>{action.desc}</p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.section>
+
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.22 }}
+            className="xl:col-span-7 rounded-[18px] p-5 sm:p-6"
+            style={{
+              background: 'linear-gradient(145deg, rgba(251,255,255,0.98), rgba(234,247,247,0.94))',
+              border: '0.5px solid rgba(0,0,0,0.08)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            }}
+          >
+            <h3 style={{ color: '#163c3f', fontSize: 'clamp(1.3rem,2vw,1.7rem)', fontWeight: 700 }}>Doctor Information</h3>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              {doctorInfoItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.label}
+                    className="rounded-[14px] px-4 py-3"
+                    style={{
+                      background: 'rgba(221,238,242,0.78)',
+                      border: '0.5px solid rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon style={{ color: '#1b6d73', fontSize: '1rem' }} />
+                      <span style={{ color: '#386a6d', fontWeight: 600, fontSize: '0.85rem' }}>{item.label}</span>
+                    </div>
+                    <p className="mt-1.5 truncate" style={{ color: '#173f43', fontWeight: 700, fontSize: '0.95rem' }}>
+                      {item.value || 'Not provided'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.section>
         </div>
       </div>
-    </>
+    </DoctorDashboardLayout>
   );
 };
 
