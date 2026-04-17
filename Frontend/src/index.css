@@ -1,7 +1,16 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
 
 :root {
+  --ms-ink: #0b1e2d;
+  --ms-muted: #476176;
+  --ms-primary: #0f766e;
+  --ms-primary-strong: #115e59;
+  --ms-accent: #0ea5e9;
+  --ms-bg: #f4fbff;
+  --ms-surface: #ffffff;
+  --ms-border: #d9ecf4;
+  --ms-shadow: 0 24px 70px rgba(13, 61, 80, 0.12);
   font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -20,4 +29,11 @@ body,
 
 body {
   margin: 0;
+  color: var(--ms-ink);
+  background: var(--ms-bg);
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
 }
