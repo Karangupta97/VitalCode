@@ -1,7 +1,15 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import InfoPage from './pages/InfoPage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import DoctorDashboard from './doctor/DoctorDashboard'
+
+const DoctorDashboardPage = () => {
+  const navigate = useNavigate()
+
+  return <DoctorDashboard onLogout={() => navigate('/login')} />
+}
 
 const App = () => {
   return (
@@ -46,6 +54,14 @@ const App = () => {
       <Route
         path='/login'
         element={<LoginPage />}
+      />
+      <Route
+        path='/register'
+        element={<RegisterPage />}
+      />
+      <Route
+        path='/doctor-dashboard'
+        element={<DoctorDashboardPage />}
       />
       <Route path='*' element={<Navigate to='/' replace />} />
     </Routes>
