@@ -105,7 +105,7 @@ app.post('/api/subscribe', (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email is required.' });
 
   console.log('📬 New subscriber:', email);
-  res.status(201).json({ success: true, message: 'You have been subscribed to the GovTech newsletter.' });
+  res.status(201).json({ success: true, message: 'You have been subscribed to the VitalCode newsletter.' });
 });
 
 // ── 404 fallback ──
@@ -115,6 +115,6 @@ app.use((req, res) => {
 
 // ── Start server ──
 app.listen(PORT, () => {
-  console.log(`🚀 GovTech API server running at http://localhost:${PORT}`);
+  console.log(`VitalCode API server running at http://localhost:${PORT}`);
   console.log(`   Health check → http://localhost:${PORT}/api/health`);
 });
