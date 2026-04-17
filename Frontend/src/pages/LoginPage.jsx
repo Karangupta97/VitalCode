@@ -556,6 +556,9 @@ const loginPageStyles = String.raw`
 }
 `
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const ROLES = [
   {
     id: 'doctor',
@@ -594,36 +597,89 @@ const ROLES = [
 const LoginPage = () => {
   const navigate = useNavigate()
   const [selectedRole, setSelectedRole] = useState(null)
-  const [loginId, setLoginId] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [serverError, setServerError] = useState('')
 
   const validate = () => {
     const newErrors = {}
     if (!selectedRole) newErrors.role = 'Please select a role'
-    if (!loginId.trim()) newErrors.loginId = 'Mobile number or email is required'
-    if (!password.trim()) newErrors.password = 'Password or OTP is required'
+    if (!EMAIL_REGEX.test(email.trim())) newErrors.email = 'Please enter a valid email address'
+    if (!password.trim()) newErrors.password = 'Password is required'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const applyApiFieldErrors = (apiErrors = []) => {
+    if (!Array.isArray(apiErrors) || apiErrors.length === 0) return
+
+    const mappedErrors = {}
+    apiErrors.forEach((error) => {
+      if (error?.field === 'email') mappedErrors.email = error.message || 'Invalid email address.'
+      if (error?.field === 'password') mappedErrors.password = error.message || 'Invalid password.'
+      if (error?.field === 'role') mappedErrors.role = error.message || 'Please choose a valid role.'
+    })
+
+    if (Object.keys(mappedErrors).length > 0) {
+      setErrors((prev) => ({ ...prev, ...mappedErrors }))
+    }
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
-    setIsLoading(true)
-    const destinationByRole = {
-      patient: '/patient-dashboard',
-      doctor: '/services',
-      pharmacy: '/services',
-    }
 
-    // Development mode: accept any entered credentials and continue.
-    setTimeout(() => {
+    setServerError('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          role: selectedRole,
+        }),
+      })
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        applyApiFieldErrors(data.errors)
+        const fallbackMessage = 'Unable to log in. Please review your credentials and try again.'
+        setServerError(data.message || fallbackMessage)
+        return
+      }
+
+      const token = data?.data?.token
+      const authenticatedUser = data?.data?.user
+
+      if (!token || !authenticatedUser) {
+        setServerError('Login response is incomplete. Please try again.')
+        return
+      }
+
+      localStorage.setItem('vitalcode_token', token)
+      localStorage.setItem('vitalcode_user', JSON.stringify(authenticatedUser))
+
+      const destinationByRole = {
+        doctor: '/doctor-dashboard',
+        patient: '/services',
+        pharmacy: '/services',
+      }
+
+      navigate(destinationByRole[authenticatedUser.role] || destinationByRole[selectedRole] || '/')
+    } catch (error) {
+      setServerError(error.message || 'Something went wrong while contacting the server.')
+    } finally {
       setIsLoading(false)
-      navigate(destinationByRole[selectedRole] || '/')
-    }, 1800)
+    }
   }
 
   return (
@@ -661,6 +717,7 @@ const LoginPage = () => {
                     onClick={() => {
                       setSelectedRole(role.id)
                       setErrors((prev) => ({ ...prev, role: undefined }))
+                      setServerError('')
                     }}
                     aria-pressed={selectedRole === role.id}
                     id={`role-btn-${role.id}`}
@@ -683,7 +740,7 @@ const LoginPage = () => {
             {/* Input Fields */}
             <div className="login-section">
               <label className="login-label" htmlFor="login-id">
-                Mobile Number or Email
+                Email Address
               </label>
               <div className="login-input-wrap">
                 <span className="login-input-icon">
@@ -694,23 +751,24 @@ const LoginPage = () => {
                 </span>
                 <input
                   id="login-id"
-                  type="text"
+                  type="email"
                   className="login-input"
-                  placeholder="Enter mobile or email"
-                  value={loginId}
+                  placeholder="you@example.com"
+                  value={email}
                   onChange={(e) => {
-                    setLoginId(e.target.value)
-                    setErrors((prev) => ({ ...prev, loginId: undefined }))
+                    setEmail(e.target.value)
+                    setErrors((prev) => ({ ...prev, email: undefined }))
+                    setServerError('')
                   }}
-                  autoComplete="username"
+                  autoComplete="email"
                 />
               </div>
-              {errors.loginId && <p className="login-error">{errors.loginId}</p>}
+              {errors.email && <p className="login-error">{errors.email}</p>}
             </div>
 
             <div className="login-section">
               <label className="login-label" htmlFor="login-password">
-                Password / OTP
+                Password
               </label>
               <div className="login-input-wrap">
                 <span className="login-input-icon">
@@ -723,11 +781,12 @@ const LoginPage = () => {
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   className="login-input"
-                  placeholder="Enter password or OTP"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value)
                     setErrors((prev) => ({ ...prev, password: undefined }))
+                    setServerError('')
                   }}
                   autoComplete="current-password"
                 />
@@ -761,6 +820,8 @@ const LoginPage = () => {
               </svg>
               <span>Verified medical professionals only</span>
             </div>
+
+            {serverError && <p className="login-error" role="alert">{serverError}</p>}
 
             {/* Actions */}
             <div className="login-actions">

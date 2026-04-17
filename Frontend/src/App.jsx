@@ -4,6 +4,7 @@ import InfoPage from './pages/InfoPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DoctorDashboard from './doctor/DoctorDashboard'
+import PatientDashboardPage from './pages/patient/PatientDashboardPage'
 
 const DoctorDashboardPage = () => {
   const navigate = useNavigate()
@@ -62,6 +63,10 @@ const App = () => {
       <Route
         path='/doctor-dashboard'
         element={<DoctorDashboardPage />}
+      />
+      <Route
+        path='/patient-dashboard'
+        element={<PatientDashboardPage />}
       />
       <Route path='*' element={<Navigate to='/' replace />} />
     </Routes>
