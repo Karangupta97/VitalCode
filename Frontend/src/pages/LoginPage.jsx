@@ -59,10 +59,16 @@ const LoginPage = () => {
     e.preventDefault()
     if (!validate()) return
     setIsLoading(true)
+    const destinationByRole = {
+      patient: '/patient-dashboard',
+      doctor: '/services',
+      pharmacy: '/services',
+    }
+
     // Development mode: accept any entered credentials and continue.
     setTimeout(() => {
       setIsLoading(false)
-      navigate('/doctor-dashboard')
+      navigate(destinationByRole[selectedRole] || '/')
     }, 1800)
   }
 
