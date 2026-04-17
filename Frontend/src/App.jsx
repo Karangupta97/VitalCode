@@ -68,6 +68,10 @@ const App = () => {
         path='/patient-dashboard'
         element={<PatientDashboardPage />}
       />
+      <Route
+        path='/patient-dashboard/:section'
+        element={<PatientDashboardPage />}
+      />
       <Route path='*' element={<Navigate to='/' replace />} />
     </Routes>
   )
