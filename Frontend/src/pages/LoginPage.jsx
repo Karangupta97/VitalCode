@@ -558,6 +558,7 @@ const loginPageStyles = String.raw`
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const DEV_AUTH_BYPASS_ENABLED = import.meta.env.DEV && import.meta.env.VITE_DISABLE_DEV_AUTH_BYPASS !== 'true'
 
 const ROLES = [
   {
@@ -607,8 +608,10 @@ const LoginPage = () => {
   const validate = () => {
     const newErrors = {}
     if (!selectedRole) newErrors.role = 'Please select a role'
-    if (!EMAIL_REGEX.test(email.trim())) newErrors.email = 'Please enter a valid email address'
-    if (!password.trim()) newErrors.password = 'Password is required'
+    if (!DEV_AUTH_BYPASS_ENABLED) {
+      if (!EMAIL_REGEX.test(email.trim())) newErrors.email = 'Please enter a valid email address'
+      if (!password.trim()) newErrors.password = 'Password is required'
+    }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -634,6 +637,28 @@ const LoginPage = () => {
 
     setServerError('')
     setIsLoading(true)
+
+    if (DEV_AUTH_BYPASS_ENABLED) {
+      const mockUser = {
+        id: `dev-${selectedRole}`,
+        email: email.trim() || `${selectedRole}@dev.local`,
+        role: selectedRole,
+        isEmailVerified: true,
+      }
+
+      localStorage.setItem('vitalcode_token', 'dev-bypass-token')
+      localStorage.setItem('vitalcode_user', JSON.stringify(mockUser))
+
+      const destinationByRole = {
+        doctor: '/doctor-dashboard',
+        patient: '/patient-dashboard',
+        pharmacy: '/services',
+      }
+
+      navigate(destinationByRole[selectedRole] || '/')
+      setIsLoading(false)
+      return
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -670,7 +695,7 @@ const LoginPage = () => {
 
       const destinationByRole = {
         doctor: '/doctor-dashboard',
-        patient: '/services',
+        patient: '/patient-dashboard',
         pharmacy: '/services',
       }
 
@@ -705,6 +730,22 @@ const LoginPage = () => {
               <h2 className="login-title">Welcome Back</h2>
               <p className="login-subtitle">Select your role to continue</p>
             </div>
+
+            {DEV_AUTH_BYPASS_ENABLED && (
+              <div className="login-verified-badge" role="status">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v4" />
+                  <path d="M12 18v4" />
+                  <path d="M4.93 4.93l2.83 2.83" />
+                  <path d="M16.24 16.24l2.83 2.83" />
+                  <path d="M2 12h4" />
+                  <path d="M18 12h4" />
+                  <path d="M4.93 19.07l2.83-2.83" />
+                  <path d="M16.24 7.76l2.83-2.83" />
+                </svg>
+                <span>Development bypass enabled. Select role and continue without backend auth.</span>
+              </div>
+            )}
 
             {/* Role Selector */}
             <div className="login-section">
@@ -845,7 +886,7 @@ const LoginPage = () => {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
-                    Secure Login
+                    {DEV_AUTH_BYPASS_ENABLED ? 'Enter Dashboard' : 'Secure Login'}
                   </>
                 )}
               </button>
