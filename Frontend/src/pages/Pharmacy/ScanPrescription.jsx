@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import {
   AlertTriangle,
-  Camera,
   CheckCircle2,
   ClipboardCheck,
   Copy,
@@ -98,14 +97,7 @@ const ScanPrescription = () => {
   const [prescriptionData, setPrescriptionData] = useState(null);
   const [selectedMedicines, setSelectedMedicines] = useState({});
   const [dispenseSummary, setDispenseSummary] = useState(null);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [cameraError, setCameraError] = useState('');
   const [isVerifyingQr, setIsVerifyingQr] = useState(false);
-
-  const fileInputRef = useRef(null);
-  const cameraVideoRef = useRef(null);
-  const cameraCanvasRef = useRef(null);
-  const cameraStreamRef = useRef(null);
 
   const selectedCount = useMemo(
     () => Object.values(selectedMedicines).filter(Boolean).length,
@@ -192,90 +184,10 @@ const ScanPrescription = () => {
     }
   };
 
-  const stopCameraStream = () => {
-    if (cameraStreamRef.current) {
-      cameraStreamRef.current.getTracks().forEach((track) => track.stop());
-      cameraStreamRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    if (!isCameraOpen || !cameraVideoRef.current || !cameraStreamRef.current) return;
-    cameraVideoRef.current.srcObject = cameraStreamRef.current;
-  }, [isCameraOpen]);
-
-  useEffect(() => {
-    return () => {
-      stopCameraStream();
-    };
-  }, []);
-
-  const closeLiveCamera = () => {
-    stopCameraStream();
-    setIsCameraOpen(false);
-  };
-
-  const processPhotoFile = (file) => {
-    if (!file) return;
-    closeLiveCamera();
-    setCameraError(
-      'Automatic image QR decoding is not enabled. Paste Digital Prescription QR payload below.'
-    );
-  };
-
-  const openLiveCamera = async () => {
-    setCameraError('');
-
-    if (navigator.mediaDevices?.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } },
-          audio: false,
-        });
-        cameraStreamRef.current = stream;
-        setIsCameraOpen(true);
-        return;
-      } catch {
-        setCameraError('Camera access is blocked. You can choose a photo manually.');
-      }
-    } else {
-      setCameraError('Camera is not supported in this browser. You can choose a photo manually.');
-    }
-
-    fileInputRef.current?.click();
-  };
-
-  const captureLivePhoto = () => {
-    const video = cameraVideoRef.current;
-    const canvas = cameraCanvasRef.current;
-    if (!video || !canvas) return;
-
-    const width = video.videoWidth || 1280;
-    const height = video.videoHeight || 720;
-    canvas.width = width;
-    canvas.height = height;
-
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    context.drawImage(video, 0, 0, width, height);
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) return;
-        const photo = new File([blob], `live-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
-        processPhotoFile(photo);
-        closeLiveCamera();
-      },
-      'image/jpeg',
-      0.92
-    );
-  };
-
-  const handleUpload = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    processPhotoFile(file);
-    event.target.value = '';
+  const openQrScannerFlow = () => {
+    setActiveTab('manual');
+    setScanState(null);
+    setInvalidReason('');
   };
 
   const toggleMedicine = (medicineName) => {
@@ -369,36 +281,27 @@ const ScanPrescription = () => {
               <div className="flex flex-wrap gap-3 mt-3">
                 <button
                   type="button"
-                  onClick={openLiveCamera}
+                  onClick={openQrScannerFlow}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl"
                   style={{ border: '1px solid #14b8a6', color: '#0f766e', fontWeight: 700, fontSize: '0.78rem' }}
                 >
-                  <Camera style={{ width: 14, height: 14 }} />
-                  Capture Live Photo
+                  <QrCode style={{ width: 14, height: 14 }} />
+                  Scan QR Code
                 </button>
 
                 <button
                   type="button"
                   className="px-4 py-2 rounded-xl"
                   style={{ background: '#0f766e', color: '#fff', fontWeight: 700, fontSize: '0.78rem' }}
-                  onClick={() => setActiveTab('manual')}
+                  onClick={openQrScannerFlow}
                 >
                   Paste Digital QR Payload
                 </button>
               </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                hidden
-                onChange={handleUpload}
-              />
-
-              {cameraError ? (
-                <p style={{ color: '#b45309', fontSize: '0.76rem', marginTop: 10 }}>{cameraError}</p>
-              ) : null}
+              <p style={{ color: '#64748b', fontSize: '0.76rem', marginTop: 10 }}>
+                Use your device QR scanner app to read the prescription QR and paste the payload below.
+              </p>
             </div>
           ) : (
             <div className="mt-4 max-w-3xl">
@@ -551,44 +454,6 @@ const ScanPrescription = () => {
               </div>
             )}
           </section>
-        )}
-
-        {isCameraOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(2,6,23,0.75)', backdropFilter: 'blur(4px)' }}>
-            <div className="w-full max-w-2xl rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #dbeafe' }}>
-              <div className="px-4 py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <p style={{ color: '#0f172a', fontSize: '0.92rem', fontWeight: 800 }}>Live Camera</p>
-              </div>
-              <div className="p-4">
-                <video
-                  ref={cameraVideoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full rounded-xl"
-                  style={{ background: '#0f172a', maxHeight: '70vh', objectFit: 'cover' }}
-                />
-                <div className="mt-4 flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={closeLiveCamera}
-                    className="px-3.5 py-2 rounded-xl"
-                    style={{ border: '1px solid #cbd5e1', color: '#334155', fontSize: '0.78rem', fontWeight: 700 }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={captureLivePhoto}
-                    className="px-3.5 py-2 rounded-xl"
-                    style={{ background: '#0f766e', color: '#fff', fontSize: '0.78rem', fontWeight: 700 }}
-                  >
-                    Capture Photo
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         )}
 
         {scanState === 'invalid' && (

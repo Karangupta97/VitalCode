@@ -11,6 +11,8 @@ const PharmacyRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [licenseLookupState, setLicenseLookupState] = useState('idle');
+  const [licenseLookupMessage, setLicenseLookupMessage] = useState('');
   const [formData, setFormData] = useState({
     licenseId: '',
     pharmacyName: '',
@@ -39,6 +41,71 @@ const PharmacyRegister = () => {
     };
   }, [isAuthenticated, navigate, clearErrors]);
 
+  useEffect(() => {
+    const normalizedLicenseId = formData.licenseId.trim().toUpperCase();
+
+    if (!normalizedLicenseId) {
+      setLicenseLookupState('idle');
+      setLicenseLookupMessage('');
+      return;
+    }
+
+    if (normalizedLicenseId.length < 6) {
+      setLicenseLookupState('idle');
+      setLicenseLookupMessage('');
+      return;
+    }
+
+    setLicenseLookupState('loading');
+    setLicenseLookupMessage('Fetching license details...');
+
+    const timerId = window.setTimeout(() => {
+      const knownLicenseId = PHARMACY_MOCK_LICENSE_DATA.license_id.trim().toUpperCase();
+
+      if (normalizedLicenseId === knownLicenseId) {
+        setFormData((prev) => ({
+          ...prev,
+          licenseId: knownLicenseId,
+          pharmacyName: PHARMACY_MOCK_LICENSE_DATA.pharmacy_name,
+          ownerName: PHARMACY_MOCK_LICENSE_DATA.owner_name,
+          pharmacistName: PHARMACY_MOCK_LICENSE_DATA.pharmacist_name,
+          pharmacistRegistrationNo: PHARMACY_MOCK_LICENSE_DATA.pharmacist_registration_no,
+          email: PHARMACY_MOCK_LICENSE_DATA.contact_details.email,
+          phone: PHARMACY_MOCK_LICENSE_DATA.contact_details.phone,
+          state: PHARMACY_MOCK_LICENSE_DATA.state,
+          city: PHARMACY_MOCK_LICENSE_DATA.city,
+          district: PHARMACY_MOCK_LICENSE_DATA.district,
+          pincode: PHARMACY_MOCK_LICENSE_DATA.pincode,
+          address: PHARMACY_MOCK_LICENSE_DATA.address,
+          gstNumber: PHARMACY_MOCK_LICENSE_DATA.registration_details.gst_number,
+        }));
+
+        setFormErrors((prev) => ({
+          ...prev,
+          licenseId: '',
+          pharmacyName: '',
+          ownerName: '',
+          pharmacistName: '',
+          pharmacistRegistrationNo: '',
+          email: '',
+          phone: '',
+          address: '',
+        }));
+
+        setLicenseLookupState('success');
+        setLicenseLookupMessage('License verified. Details auto-filled successfully.');
+        return;
+      }
+
+      setLicenseLookupState('not-found');
+      setLicenseLookupMessage('License ID not found in registry. Continue manual entry or use Auto-fill mock data.');
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [formData.licenseId]);
+
   const setMockData = () => {
     setFormData((prev) => ({
       ...prev,
@@ -56,6 +123,8 @@ const PharmacyRegister = () => {
       address: PHARMACY_MOCK_LICENSE_DATA.address,
       gstNumber: PHARMACY_MOCK_LICENSE_DATA.registration_details.gst_number,
     }));
+    setLicenseLookupState('success');
+    setLicenseLookupMessage('License details auto-filled successfully.');
   };
 
   const validateForm = () => {
@@ -94,7 +163,8 @@ const PharmacyRegister = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const nextValue = name === 'licenseId' ? value.toUpperCase() : value;
+    setFormData((prev) => ({ ...prev, [name]: nextValue }));
 
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: '' }));
@@ -190,6 +260,22 @@ const PharmacyRegister = () => {
                     style={inputStyle('licenseId')}
                   />
                   {formErrors.licenseId && <p style={{ color: '#dc2626', fontSize: '0.76rem', marginTop: 6 }}>{formErrors.licenseId}</p>}
+                  {!formErrors.licenseId && licenseLookupMessage && (
+                    <p
+                      style={{
+                        color:
+                          licenseLookupState === 'success'
+                            ? '#15803d'
+                            : licenseLookupState === 'not-found'
+                            ? '#b45309'
+                            : '#475569',
+                        fontSize: '0.76rem',
+                        marginTop: 6,
+                      }}
+                    >
+                      {licenseLookupMessage}
+                    </p>
+                  )}
                 </div>
 
                 <div>
