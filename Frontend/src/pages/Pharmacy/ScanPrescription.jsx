@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -184,7 +183,13 @@ const ScanPrescription = () => {
     }
   };
 
-  const openQrScannerFlow = () => {
+  const openScanQrTab = () => {
+    setActiveTab('scan');
+    setScanState(null);
+    setInvalidReason('');
+  };
+
+  const openManualPayloadTab = () => {
     setActiveTab('manual');
     setScanState(null);
     setInvalidReason('');
@@ -260,11 +265,12 @@ const ScanPrescription = () => {
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
                   <div className="relative w-20 h-20 flex items-center justify-center">
-                    <motion.span
+                    <span
                       className="absolute inset-0 rounded-full"
-                      style={{ border: '2px solid rgba(45,212,191,0.45)' }}
-                      animate={{ scale: [1, 1.35], opacity: [0.7, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+                      style={{
+                        border: '2px solid rgba(45,212,191,0.45)',
+                        animation: 'ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite',
+                      }}
                     />
                     <QrCode style={{ width: 48, height: 48, color: '#2dd4bf' }} />
                   </div>
@@ -281,7 +287,7 @@ const ScanPrescription = () => {
               <div className="flex flex-wrap gap-3 mt-3">
                 <button
                   type="button"
-                  onClick={openQrScannerFlow}
+                  onClick={openScanQrTab}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl"
                   style={{ border: '1px solid #14b8a6', color: '#0f766e', fontWeight: 700, fontSize: '0.78rem' }}
                 >
@@ -293,7 +299,7 @@ const ScanPrescription = () => {
                   type="button"
                   className="px-4 py-2 rounded-xl"
                   style={{ background: '#0f766e', color: '#fff', fontWeight: 700, fontSize: '0.78rem' }}
-                  onClick={openQrScannerFlow}
+                  onClick={openManualPayloadTab}
                 >
                   Paste Digital QR Payload
                 </button>

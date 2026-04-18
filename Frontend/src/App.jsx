@@ -265,7 +265,6 @@ const StaffRoute = ({ children }) => {
 const DoctorRoute = ({ children }) => {
   const {
     isAuthenticated,
-    doctor,
     isLoading,
     isCheckingAuth,
     checkAuthStatus,
@@ -370,6 +369,22 @@ const RedirectAuthenticatedPharmacy = ({ children }) => {
   }
 
   return children;
+};
+
+// Resolve legacy or ambiguous pharmacy routes to the correct landing page.
+const PharmacyLandingRedirect = () => {
+  const { isAuthenticated, isCheckingAuth } = usePharmacyStore();
+
+  if (isCheckingAuth) {
+    return <Loading />;
+  }
+
+  return (
+    <Navigate
+      to={isAuthenticated ? "/pharmacy/dashboard" : "/pharmacy/login"}
+      replace
+    />
+  );
 };
 
 const App = () => {
@@ -828,6 +843,7 @@ const App = () => {
           />
 
           {/* Pharmacy Routes */}
+          <Route path="/pharmacy" element={<PharmacyLandingRedirect />} />
           <Route
             path="/pharmacy/login"
             element={
@@ -900,6 +916,8 @@ const App = () => {
               </PharmacyRoute>
             }
           />
+          <Route path="/pharmacy/*" element={<PharmacyLandingRedirect />} />
+          <Route path="/payload" element={<PharmacyLandingRedirect />} />
 
           {/* Public */}
           <Route path="/" element={<Home />} />

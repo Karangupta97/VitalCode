@@ -90,38 +90,66 @@ async function startServer() {
   dotenv.config({ path: path.resolve(__dirname, ".env") });
 
   const port = process.env.PORT || 4000;
+
+  const parseOriginList = (...rawValues) =>
+    rawValues
+      .filter((value) => typeof value === "string" && value.trim())
+      .flatMap((value) => value.split(","))
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+  const normalizeOrigin = (value) => String(value || "").trim().replace(/\/$/, "");
+
+  const defaultAllowedOrigins = [
+    "https://medicares.in",
+    "https://www.medicares.in",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://192.168.0.106:3000",
+  ];
+
+  const envAllowedOrigins = parseOriginList(
+    process.env.CLIENT_URL,
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_URLS
+  );
+
+  const allowedOrigins = Array.from(
+    new Set([...envAllowedOrigins, ...defaultAllowedOrigins].map(normalizeOrigin))
+  );
+
+  const resolveCorsOrigin = (origin, callback) => {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const normalizedRequestOrigin = normalizeOrigin(origin);
+    if (allowedOrigins.includes(normalizedRequestOrigin)) {
+      callback(null, true);
+      return;
+    }
+
+    console.log(`CORS: Origin '${origin}' not allowed`);
+    callback(new Error("Not allowed by CORS"));
+  };
+
+  const corsOptions = {
+    origin: resolveCorsOrigin,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-device-id", "X-Device-Id"],
+  };
+
   app = express();
 
   // Middleware
   app.use(status({ path: "/status" }));
-  app.use(
-    cors({
-      origin: function (origin, callback) {
-        const allowedOrigins = [
-          "https://medicares.in",
-          "https://www.medicares.in",
-          "http://localhost:5173", // Vite's default port for development
-          "http://localhost:3000", // Additional development port
-          "http://192.168.0.106:3000", // For Mobile test
-        ];
-
-        // Check if origin is allowed or if it's null (like for same-origin requests)
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          console.log(`CORS: Origin '${origin}' not allowed`);
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-device-id", "X-Device-Id"],
-    })
-  );
+  app.use(cors(corsOptions));
 
   // Explicit preflight handler — ensures OPTIONS requests always succeed
   // even if a reverse proxy or load balancer interferes with the cors middleware
-  app.options("*", cors());
+  app.options("*", cors(corsOptions));
 
   app.use(express.json());
   app.use(cookieParser()); // Add cookie parser for handling HTTP-only cookies
@@ -207,22 +235,7 @@ async function startServer() {
   // Initialize WebSocket server
   io = new Server(httpServer, {
     cors: {
-      origin: function (origin, callback) {
-        const allowedOrigins = [
-          "https://medicares.in",
-          "https://www.medicares.in",
-          "http://localhost:5173", // Vite's default port for development
-          "http://localhost:3000", // Additional development port
-          "http://192.168.0.106:3000", // For Mobile test
-        ];
-
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          console.log(`CORS: Origin '${origin}' not allowed`);
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
+      origin: resolveCorsOrigin,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization", "x-device-id", "X-Device-Id"],
