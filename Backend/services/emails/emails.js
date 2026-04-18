@@ -9,6 +9,7 @@ import { resend, sender } from "./email.config.js";
 import { DOCTOR_APPROVAL_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { DOCTOR_REJECTION_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { FAMILY_VAULT_INVITE_EMAIL_TEMPLATE } from "./emailTemplates.js";
+import { DOCTOR_BIOMETRIC_OTP_TEMPLATE } from "./emailTemplates.js";
 
 export const sendVerificationEmail = async (email, verificationToken) => {
   try {
@@ -386,5 +387,48 @@ export const sendFamilyVaultInviteEmail = async (email, otpCode, headMemberName,
   } catch (error) {
     console.error(`Error sending Family Vault invite email:`, error);
     throw new Error(`Error sending Family Vault invite email: ${error.message}`);
+  }
+};
+
+/**
+ * Send OTP when biometric verification is unavailable/failed for doctor actions.
+ * @param {string} email - Doctor email
+ * @param {string} doctorName - Doctor display name
+ * @param {string} otpCode - 6-digit OTP code
+ * @param {string} verificationContext - Action context (login or prescription)
+ * @param {number} otpTtlMinutes - OTP expiration in minutes
+ */
+export const sendDoctorBiometricOTPEmail = async (
+  email,
+  doctorName,
+  otpCode,
+  verificationContext,
+  otpTtlMinutes
+) => {
+  try {
+    let emailContent = DOCTOR_BIOMETRIC_OTP_TEMPLATE.replace(
+      "{doctorName}",
+      doctorName || "Doctor"
+    )
+      .replace("{otpCode}", otpCode)
+      .replace("{verificationContext}", verificationContext)
+      .replace("{otpTtlMinutes}", String(otpTtlMinutes));
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: "Medicare Doctor Verification OTP",
+      html: emailContent,
+    });
+
+    if (error) {
+      console.error("Error sending doctor biometric OTP email:", error);
+      throw new Error(error?.message || "Failed to send doctor biometric OTP email");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error in sendDoctorBiometricOTPEmail:", error);
+    throw new Error(`Error sending doctor biometric OTP email: ${error.message}`);
   }
 };

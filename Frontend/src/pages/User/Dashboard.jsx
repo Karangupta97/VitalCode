@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import QRCodeModal from "../../components/User/QRCodeModal";
+import PrescriptionQRModal from "../../components/User/PrescriptionQRModal";
 import ProfilePhotoModal from "../../components/User/ProfilePhotoModal";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { io } from "socket.io-client";
@@ -48,6 +49,7 @@ const Dashboard = () => {
     error,
     fetchReports,
     fetchPrescriptions,
+    generatePrescriptionQr,
     fetchNotifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -57,6 +59,12 @@ const Dashboard = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
   const [isProfilePhotoModalOpen, setIsProfilePhotoModalOpen] = useState(false);
+  const [isPrescriptionQrModalOpen, setIsPrescriptionQrModalOpen] =
+    useState(false);
+  const [activeQrPrescription, setActiveQrPrescription] = useState(null);
+  const [activeQrPayload, setActiveQrPayload] = useState(null);
+  const [isGeneratingPrescriptionQr, setIsGeneratingPrescriptionQr] =
+    useState(false);
 
   // Initial data fetch with token check
   useEffect(() => {
@@ -90,6 +98,45 @@ const Dashboard = () => {
   // Handler for opening profile photo modal
   const handleProfilePhotoClick = () => { 
     setIsProfilePhotoModalOpen(true);
+  };
+
+  const handleGeneratePrescriptionQr = async (prescription) => {
+    if (!token || !prescription?._id) {
+      toast.error("Authentication required to generate secure QR");
+      return;
+    }
+
+    setActiveQrPrescription(prescription);
+    setIsPrescriptionQrModalOpen(true);
+    setIsGeneratingPrescriptionQr(true);
+
+    try {
+      const response = await generatePrescriptionQr(token, prescription._id);
+      setActiveQrPayload(response);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to generate secure QR"
+      );
+      setActiveQrPayload(null);
+    } finally {
+      setIsGeneratingPrescriptionQr(false);
+    }
+  };
+
+  const handleRegeneratePrescriptionQr = async () => {
+    if (!activeQrPrescription) {
+      return;
+    }
+
+    await handleGeneratePrescriptionQr(activeQrPrescription);
+  };
+
+  const closePrescriptionQrModal = () => {
+    setIsPrescriptionQrModalOpen(false);
+    setActiveQrPrescription(null);
+    setActiveQrPayload(null);
   };
 
   // WebSocket connection
@@ -166,6 +213,17 @@ const Dashboard = () => {
         showNotificationToast(notification);
       });
 
+      socket.on("prescription:lifecycle", (eventPayload) => {
+        console.log("Received real-time prescription lifecycle update:", eventPayload);
+
+        fetchPrescriptions(token);
+        fetchNotifications(token);
+
+        if (eventPayload?.lifecycleStatus) {
+          toast.success(`Prescription status updated: ${eventPayload.lifecycleStatus}`);
+        }
+      });
+
       socket.on("disconnect", (reason) => {
         console.warn("WebSocket disconnected:", reason);
       });
@@ -183,6 +241,7 @@ const Dashboard = () => {
         socket.off("connect");
         socket.off("connect_error");
         socket.off("notification");
+        socket.off("prescription:lifecycle");
         socket.off("disconnect");
         socket.off("error");
         socket.disconnect();
@@ -1437,6 +1496,13 @@ const Dashboard = () => {
                       >
                         <PrescriptionCard
                           prescription={prescription}
+                          showQrButton
+                          onGenerateQr={handleGeneratePrescriptionQr}
+                          isGeneratingQr={
+                            isGeneratingPrescriptionQr &&
+                            String(activeQrPrescription?._id) ===
+                              String(prescription._id)
+                          }
                           onView={(prescription) => {
                             window.open(
                               `/dashboard/digital-prescriptions/${prescription._id}`,
@@ -1919,6 +1985,14 @@ const Dashboard = () => {
         isOpen={isProfilePhotoModalOpen}
         onClose={() => setIsProfilePhotoModalOpen(false)}
         user={user}
+      />
+
+      <PrescriptionQRModal
+        isOpen={isPrescriptionQrModalOpen}
+        onClose={closePrescriptionQrModal}
+        onRegenerate={handleRegeneratePrescriptionQr}
+        qrData={activeQrPayload}
+        isLoading={isGeneratingPrescriptionQr}
       />
     </div>
   );

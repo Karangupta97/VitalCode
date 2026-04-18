@@ -52,6 +52,127 @@ const doctorSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpiresAt: Date,
+  biometricCredentials: {
+    type: [
+      {
+        credentialID: {
+          type: String,
+          required: true,
+        },
+        publicKey: {
+          type: String,
+          required: true,
+        },
+        counter: {
+          type: Number,
+          default: 0,
+        },
+        transports: {
+          type: [String],
+          default: [],
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+        lastUsedAt: {
+          type: Date,
+          default: null,
+        },
+      },
+    ],
+    default: [],
+  },
+  pendingBiometricRegistration: {
+    challenge: {
+      type: String,
+      default: "",
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  pendingLoginVerification: {
+    tokenHash: {
+      type: String,
+      default: "",
+    },
+    challenge: {
+      type: String,
+      default: "",
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
+    },
+    otpHash: {
+      type: String,
+      default: "",
+    },
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lastOtpSentAt: {
+      type: Date,
+      default: null,
+    },
+    method: {
+      type: String,
+      default: "",
+    },
+  },
+  pendingPrescriptionVerification: {
+    tokenHash: {
+      type: String,
+      default: "",
+    },
+    challenge: {
+      type: String,
+      default: "",
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
+    },
+    otpHash: {
+      type: String,
+      default: "",
+    },
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lastOtpSentAt: {
+      type: Date,
+      default: null,
+    },
+    actionTokenHash: {
+      type: String,
+      default: "",
+    },
+    actionTokenExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    actionTokenUsedAt: {
+      type: Date,
+      default: null,
+    },
+    method: {
+      type: String,
+      default: "",
+    },
+  },
 }, {
   timestamps: true
 });

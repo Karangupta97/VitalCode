@@ -15,6 +15,7 @@ import {
   FiSettings,
   FiSearch,
   FiShield,
+  FiLayers,
 } from 'react-icons/fi';
 
 // ─── Animation Variants ──────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ const navItems = [
   { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
   { label: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
   { label: 'Emergency Folder', icon: FiShield, path: '/doctor/emergency-folder' },
+  { label: 'Shared Reports', icon: FiLayers, path: '/doctor/shared-reports' },
   { label: 'Patients', icon: FiUsers, path: '/doctor/patients' },
   { label: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
   { label: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },

@@ -114,7 +114,7 @@ async function startServer() {
       },
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-device-id", "X-Device-Id"],
     })
   );
 
@@ -223,7 +223,7 @@ async function startServer() {
       },
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "x-device-id", "X-Device-Id"],
     },
     path: "/socket.io",
     transports: ["polling", "websocket"],

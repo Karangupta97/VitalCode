@@ -163,10 +163,21 @@ const PharmacyLogin = () => {
               >
                 {isLoading ? 'Signing in...' : 'Sign in to Pharmacy'}
               </button>
+
+              <div className="rounded-xl px-3 py-2.5" style={{ background: '#f0fdfa', border: '1px solid #99f6e4' }}>
+                <p style={{ color: '#0f766e', fontSize: '0.76rem', fontWeight: 700 }}>Mock login details</p>
+                <p style={{ color: '#115e59', fontSize: '0.76rem', marginTop: 4 }}>
+                  Email: healthcaremedico@gmail.com
+                </p>
+                <p style={{ color: '#115e59', fontSize: '0.76rem' }}>Password: Pharmacy@123</p>
+              </div>
             </form>
 
             <div className="mt-6 pt-5" style={{ borderTop: '1px solid #e2e8f0' }}>
               <p style={{ color: '#64748b', fontSize: '0.8rem', textAlign: 'center' }}>
+                New pharmacy? <Link to="/pharmacy/register" style={{ color: '#0f766e', fontWeight: 700 }}>Register here</Link>
+              </p>
+              <p style={{ color: '#64748b', fontSize: '0.8rem', textAlign: 'center', marginTop: 6 }}>
                 Need staff help? <Link to="/" style={{ color: '#0f766e', fontWeight: 700 }}>Go to home</Link>
               </p>
             </div>

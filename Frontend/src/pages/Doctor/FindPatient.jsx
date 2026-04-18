@@ -239,6 +239,26 @@ const DoctorFindPatient = () => {
   const patientCache = useRef(new Map());
   const reportCache = useRef(new Map());
 
+  const getDoctorRequestConfig = (extraConfig = {}) => {
+    const doctorToken =
+      useDoctorStore.getState().authToken ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("doctor_auth_token")
+        : null);
+
+    if (!doctorToken) {
+      return extraConfig;
+    }
+
+    return {
+      ...extraConfig,
+      headers: {
+        ...(extraConfig.headers || {}),
+        Authorization: `Bearer ${doctorToken}`,
+      },
+    };
+  };
+
   const isValidUMID = (umid) => /^[A-Z]{2}\d{5}[A-Z]{2}$/.test(umid);
 
   // Persist data
@@ -261,7 +281,10 @@ const DoctorFindPatient = () => {
       setIsLoadingPrescriptions(true);
 
       // Use doctor API endpoints (same as hospital for now)
-      const reportsRes = await axios.get(`/api/hospital/patient/${patientId}/reports`, { signal });
+      const reportsRes = await axios.get(
+        `/api/hospital/patient/${patientId}/reports`,
+        getDoctorRequestConfig({ signal })
+      );
       if (reportsRes.data.success) {
         setReports(reportsRes.data.reports || []);
         localStorage.setItem('doctorCurrentPatientReports', JSON.stringify(reportsRes.data.reports || []));
@@ -269,7 +292,10 @@ const DoctorFindPatient = () => {
       }
       setIsLoadingReports(false);
 
-      const prescRes = await axios.get(`/api/hospital/digital-prescriptions/patient/${patientId}`, { signal });
+      const prescRes = await axios.get(
+        `/api/hospital/digital-prescriptions/patient/${patientId}`,
+        getDoctorRequestConfig({ signal })
+      );
       if (prescRes.data.success) {
         setPrescriptions(prescRes.data.prescriptions || []);
         localStorage.setItem('doctorCurrentPatientPrescriptions', JSON.stringify(prescRes.data.prescriptions || []));
@@ -295,7 +321,10 @@ const DoctorFindPatient = () => {
     
     setIsSearching(true); setError(null); setPatient(null); setReports([]); setPrescriptions([]);
     try {
-      const res = await axios.get(`/api/hospital/patient/${trimmed}`);
+      const res = await axios.get(
+        `/api/hospital/patient/${trimmed}`,
+        getDoctorRequestConfig()
+      );
       if (res.data.success) {
         const p = res.data.patient;
         setPatient(p);
@@ -312,7 +341,10 @@ const DoctorFindPatient = () => {
 
   const handleRefreshReportUrl = async (reportId, silent = false) => {
     try {
-      const res = await axios.get(`/api/hospital/reports/${reportId}/refresh-url`);
+      const res = await axios.get(
+        `/api/hospital/reports/${reportId}/refresh-url`,
+        getDoctorRequestConfig()
+      );
       if (res.data.success) {
         const updated = reports.map(r => r._id === reportId ? { ...r, fileUrl: res.data.fileUrl } : r);
         setReports(updated);

@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
+import PrescriptionQRModal from "../../components/User/PrescriptionQRModal";
 import { 
   FiFileText, FiSearch, FiFilter, FiCalendar, 
   FiGrid, FiList, FiAlertTriangle,
@@ -19,13 +20,18 @@ const AllDigitalPrescriptions = () => {
     prescriptions,
     isLoading,
     error,
-    fetchPrescriptions
+    fetchPrescriptions,
+    generatePrescriptionQr,
   } = usePatientStore();  const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
   const [sortBy, setSortBy] = useState("newest"); // "newest", "oldest", "doctor", "hospital"
   const [showFilters, setShowFilters] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [activeQrPrescription, setActiveQrPrescription] = useState(null);
+  const [activeQrPayload, setActiveQrPayload] = useState(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
 
   // Fetch prescriptions from store
   useEffect(() => {
@@ -70,9 +76,15 @@ const AllDigitalPrescriptions = () => {
     // Apply category filter
     if (selectedFilter !== "all") {
       if (selectedFilter === "active") {
-        results = results.filter(prescription => prescription.status === "Active" || !prescription.status);
+        results = results.filter((prescription) => {
+          const status = (prescription.lifecycleStatus || "CREATED").toUpperCase();
+          return status !== "DELIVERED" && status !== "FLAGGED";
+        });
       } else if (selectedFilter === "completed") {
-        results = results.filter(prescription => prescription.status === "Completed");
+        results = results.filter(
+          (prescription) =>
+            (prescription.lifecycleStatus || "").toUpperCase() === "DELIVERED"
+        );
       } else if (selectedFilter === "recent") {
         results = results.filter(prescription => 
           new Date(prescription.createdAt) >= thirtyDaysAgo
@@ -129,8 +141,75 @@ const AllDigitalPrescriptions = () => {
     setSelectedFilter('all');
     setSortBy('newest');
   };
+
+  const generateQrForPrescription = async (prescription) => {
+    if (!token || !prescription?._id) {
+      toast.error("Authentication required to generate secure QR");
+      return;
+    }
+
+    setActiveQrPrescription(prescription);
+    setIsQrModalOpen(true);
+    setIsGeneratingQr(true);
+
+    try {
+      const response = await generatePrescriptionQr(token, prescription._id);
+      setActiveQrPayload(response);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to generate secure QR"
+      );
+      setActiveQrPayload(null);
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  const regenerateQr = async () => {
+    if (!activeQrPrescription) {
+      return;
+    }
+
+    await generateQrForPrescription(activeQrPrescription);
+  };
+
+  const closeQrModal = () => {
+    setIsQrModalOpen(false);
+    setActiveQrPayload(null);
+    setActiveQrPrescription(null);
+  };
   // List view prescription item component
   const PrescriptionListItem = ({ prescription }) => {
+    const lifecycleStatus = (prescription.lifecycleStatus || "CREATED").toUpperCase();
+    const lifecycleLabel =
+      lifecycleStatus === "IN_PROCESS" ? "IN PROCESS" : lifecycleStatus;
+    const lifecycleClass =
+      lifecycleStatus === "DELIVERED"
+        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+        : lifecycleStatus === "SCANNED"
+          ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
+          : lifecycleStatus === "ACCEPTED"
+            ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400"
+            : lifecycleStatus === "IN_PROCESS"
+              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400"
+              : lifecycleStatus === "FLAGGED"
+                ? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                : "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+    const lifecycleDotClass =
+      lifecycleStatus === "DELIVERED"
+        ? "bg-emerald-500"
+        : lifecycleStatus === "SCANNED"
+          ? "bg-blue-500"
+          : lifecycleStatus === "ACCEPTED"
+            ? "bg-indigo-500"
+            : lifecycleStatus === "IN_PROCESS"
+              ? "bg-amber-500"
+              : lifecycleStatus === "FLAGGED"
+                ? "bg-red-500"
+                : "bg-slate-500";
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -157,18 +236,11 @@ const AllDigitalPrescriptions = () => {
               </div>
               
               <div className="sm:text-right">
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
-                  ${(prescription.status === "Active" || !prescription.status) ? 
-                    "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" : 
-                    prescription.status === "Completed" ? 
-                    "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" : 
-                    "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+                <div
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${lifecycleClass}`}
                 >
-                  <div className={`w-1.5 h-1.5 rounded-full ${
-                    (prescription.status === "Active" || !prescription.status) ? "bg-emerald-500" :
-                    prescription.status === "Completed" ? "bg-blue-500" : "bg-gray-500"
-                  }`}></div>
-                  {prescription.status || "Active"}
+                  <div className={`w-1.5 h-1.5 rounded-full ${lifecycleDotClass}`}></div>
+                  {lifecycleLabel}
                 </div>
               </div>
             </div>
@@ -678,7 +750,13 @@ const AllDigitalPrescriptions = () => {
               >
                 {viewMode === 'grid' ? (
                   <PrescriptionCard 
-                    prescription={prescription} 
+                    prescription={prescription}
+                    showQrButton
+                    onGenerateQr={generateQrForPrescription}
+                    isGeneratingQr={
+                      isGeneratingQr &&
+                      String(activeQrPrescription?._id) === String(prescription._id)
+                    }
                   />
                 ) : (
                   <PrescriptionListItem 
@@ -690,6 +768,14 @@ const AllDigitalPrescriptions = () => {
           </motion.div>
         )}
       </div>
+
+      <PrescriptionQRModal
+        isOpen={isQrModalOpen}
+        onClose={closeQrModal}
+        onRegenerate={regenerateQr}
+        qrData={activeQrPayload}
+        isLoading={isGeneratingQr}
+      />
     </div>
   );
 };

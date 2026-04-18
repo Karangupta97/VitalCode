@@ -11,6 +11,9 @@ const API_URL =
     : "https://api.medicares.in";
 const DEBUG_API_LOGS = import.meta.env.DEV && import.meta.env.VITE_DEBUG_API === "true";
 
+const getRequestUrl = (configOrError) => String(configOrError?.url || configOrError?.config?.url || "");
+const isFounderOwnedRequest = (configOrError) => getRequestUrl(configOrError).includes('/api/founder');
+
 // Import or recreate the throttling mechanism
 // Global request timestamps to prevent duplicate requests
 const requestTimestamps = window.requestTimestamps || {
@@ -43,8 +46,14 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 // Add axios interceptor to add token to all requests
 const addTokenInterceptor = axios.interceptors.request.use(
   (config) => {
+    if (!config.headers) {
+      config.headers = {};
+    }
+
+    const existingAuthHeader =
+      config.headers.Authorization || config.headers.authorization;
     const token = safeStorageAccess.getItem('founder_token');
-    if (token) {
+    if (!existingAuthHeader && token && isFounderOwnedRequest(config)) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
@@ -82,6 +91,14 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (axios.isCancel(error) || error?.code === 'ERR_CANCELED') {
+      return Promise.reject(error);
+    }
+
+    if (!isFounderOwnedRequest(error)) {
+      return Promise.reject(error);
+    }
+
     console.error('Axios error:', error);
     
     // Log detailed error information

@@ -38,6 +38,7 @@ export const verifyDoctor = async (req, res, next) => {
       id: doctor._id,
       role: "doctor"
     };
+    req.doctorAuthToken = token;
     
     next();
   } catch (error) {

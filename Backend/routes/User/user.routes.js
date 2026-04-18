@@ -1,6 +1,14 @@
 import express from "express";
 import { verifyToken } from "../../middleware/User/verifyToken.js";
-import { getUserPrescriptions, getUserPrescriptionById, getPrescriptionCount, getUserProfileByUmid } from "../../controllers/User/user.controller.js";
+import {
+	getUserPrescriptions,
+	getUserPrescriptionById,
+	getPrescriptionCount,
+	getUserProfileByUmid,
+	generatePrescriptionQrForPatient,
+	requestPrescriptionDeliveryOtp,
+	confirmPrescriptionDelivery,
+} from "../../controllers/User/user.controller.js";
 
 const router = express.Router();
 
@@ -15,6 +23,24 @@ router.get("/digital-prescriptions", getUserPrescriptions);
 
 // Get prescription count for the logged-in user
 router.get("/digital-prescriptions/count", getPrescriptionCount);
+
+// Generate secure QR payload for a prescription
+router.post(
+	"/digital-prescriptions/:prescriptionId/qr/generate",
+	generatePrescriptionQrForPatient
+);
+
+// Request OTP for delivery confirmation
+router.post(
+	"/digital-prescriptions/:prescriptionId/delivery/request-otp",
+	requestPrescriptionDeliveryOtp
+);
+
+// Confirm delivery using button or OTP
+router.post(
+	"/digital-prescriptions/:prescriptionId/delivery/confirm",
+	confirmPrescriptionDelivery
+);
 
 // Get a specific prescription by ID
 router.get("/digital-prescriptions/:prescriptionId", getUserPrescriptionById);

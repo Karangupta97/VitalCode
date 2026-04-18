@@ -13,7 +13,8 @@ import {
   FiCheckCircle,
   FiAlertTriangle,
   FiBell,
-  FiUser
+  FiUser,
+  FiCamera,
 } from "react-icons/fi";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -284,6 +285,14 @@ const HospitalDashboard = () => {
             >
               <FiSettings className="w-6 h-6 text-purple-600 mb-2" />
               <span className="text-sm font-medium text-gray-900">Settings</span>
+            </Link>
+
+            <Link
+              to="/hospital/prescription-scanner"
+              className="flex flex-col items-center p-4 bg-cyan-50 rounded-xl hover:bg-cyan-100 transition-colors"
+            >
+              <FiCamera className="w-6 h-6 text-cyan-600 mb-2" />
+              <span className="text-sm font-medium text-gray-900">Scan Prescription</span>
             </Link>
             
             <Link 

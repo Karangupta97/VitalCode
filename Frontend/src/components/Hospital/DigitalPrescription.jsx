@@ -20,6 +20,8 @@ import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import usePatientStore from "../../store/Patient/patientstore";
 import { useAuthStore } from "../../store/Patient/authStore";
+import { useDoctorStore } from "../../store/doctorStore";
+import { authenticateDoctorBiometric } from "../../utils/doctorBiometric";
 
 // Utility function to calculate age from date of birth
 const calculateAge = (dob) => {
@@ -44,6 +46,71 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
   const [previewMode, setPreviewMode] = useState(false);
   const { createPrescription } = usePatientStore();
   const { token } = useAuthStore();
+  const {
+    authToken: doctorAuthToken,
+    isAuthenticated: isDoctorAuthenticated,
+    initiatePrescriptionVerification,
+    verifyPrescriptionBiometric,
+    requestPrescriptionVerificationOtp,
+    verifyPrescriptionVerificationOtp,
+  } = useDoctorStore();
+
+  const resolvePrescriptionVerificationToken = async () => {
+    const flow = await initiatePrescriptionVerification();
+
+    if (!flow?.success || !flow?.challengeToken) {
+      throw new Error(flow?.message || "Unable to start secure verification");
+    }
+
+    const challengeToken = flow.challengeToken;
+
+    if (flow.requiresBiometric && flow.biometricOptions) {
+      try {
+        const authenticationResponse = await authenticateDoctorBiometric(
+          flow.biometricOptions
+        );
+        const biometricResult = await verifyPrescriptionBiometric({
+          challengeToken,
+          authenticationResponse,
+        });
+
+        if (biometricResult?.success && biometricResult?.verificationToken) {
+          toast.success("Fingerprint verified");
+          return biometricResult.verificationToken;
+        }
+      } catch (error) {
+        console.warn("Biometric verification failed; switching to OTP fallback", error);
+      }
+    }
+
+    await requestPrescriptionVerificationOtp({ challengeToken });
+    toast("Biometric unavailable/failed. OTP sent to your email.", { icon: "📩" });
+
+    const otpInput = window.prompt("Enter the 6-digit verification OTP sent to your email:");
+    const otp = String(otpInput || "").replace(/\D/g, "").slice(0, 6);
+
+    if (!otp) {
+      throw new Error("Verification failed. Action not permitted.");
+    }
+
+    if (otp.length !== 6) {
+      throw new Error("Please enter a valid 6-digit OTP.");
+    }
+
+    const otpResult = await verifyPrescriptionVerificationOtp({
+      challengeToken,
+      otp,
+    });
+
+    if (otpResult?.success && otpResult?.verificationToken) {
+      toast.success("Email OTP verified");
+      return otpResult.verificationToken;
+    }
+
+    throw new Error(
+      otpResult?.message || "Verification failed. Action not permitted."
+    );
+  };
 
   const handleChange = (e, index, field) => {
     const { value } = e.target;
@@ -96,11 +163,25 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
     setIsSubmitting(true);
 
     try {
+      const storedDoctorToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("doctor_auth_token")
+          : null;
+
+      const activeToken =
+        (isDoctorAuthenticated && (doctorAuthToken || storedDoctorToken))
+          ? (doctorAuthToken || storedDoctorToken)
+          : token;
+
       // Validate that we have a token
-      if (!token) {
+      if (!activeToken) {
         toast.error('Authentication required. Please log in again.');
         return;
       }
+
+      const doctorVerificationToken = isDoctorAuthenticated
+        ? await resolvePrescriptionVerificationToken()
+        : null;
 
       // Add patient details and current date to the prescription
       const prescriptionData = {
@@ -108,11 +189,12 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
         patientId: patient._id,
         patientName: `${patient.name} ${patient.lastname}`,
         patientUMID: patient.umid,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        ...(doctorVerificationToken ? { doctorVerificationToken } : {}),
       };
 
       // Use createPrescription from patient store with token
-      const newPrescription = await createPrescription(prescriptionData, token);
+      const newPrescription = await createPrescription(prescriptionData, activeToken);
       
       if (newPrescription) {
         toast.success('Prescription created successfully');
@@ -553,7 +635,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                               <FiFileText className="text-blue-500 w-3 h-3" /> Medication Name
                             </label>
                             <input
@@ -566,7 +648,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                               <FiInfo className="text-blue-500 w-3 h-3" /> Dosage
                             </label>
                             <input
@@ -582,7 +664,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                               <FiClock className="text-blue-500 w-3 h-3" /> Frequency
                             </label>
                             <select
@@ -600,7 +682,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                               <FiCalendar className="text-blue-500 w-3 h-3" /> Duration
                             </label>
                             <input
@@ -613,7 +695,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                               <FiHelpCircle className="text-blue-500 w-3 h-3" /> Special Instructions
                             </label>
                             <input

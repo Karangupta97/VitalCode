@@ -47,3 +47,24 @@ export const sendNotificationToUser = (userId, notification) => {
   
   io.to(`user:${userId}`).emit('notification', notification);
 };
+
+export const sendEventToUser = (userId, eventName, payload) => {
+  if (!io) {
+    console.error('Socket.IO not initialized');
+    return;
+  }
+
+  io.to(`user:${userId}`).emit(eventName, payload);
+};
+
+export const emitPrescriptionLifecycleUpdate = (userIds, payload) => {
+  if (!io) {
+    console.error('Socket.IO not initialized');
+    return;
+  }
+
+  const uniqueUserIds = [...new Set((userIds || []).filter(Boolean).map(String))];
+  uniqueUserIds.forEach((userId) => {
+    io.to(`user:${userId}`).emit('prescription:lifecycle', payload);
+  });
+};

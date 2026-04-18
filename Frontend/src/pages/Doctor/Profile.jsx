@@ -3,11 +3,17 @@ import { useDoctorStore } from '../../store/doctorStore';
 import DoctorDashboardLayout from '../../components/Doctor/DoctorDashboardLayout';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { toast } from 'react-hot-toast';
+import { FaFingerprint } from 'react-icons/fa';
 import {
   FiUser, FiMail, FiPhone, FiAward, FiBookOpen, FiBriefcase,
   FiMapPin, FiActivity, FiShield, FiClock, FiEdit3, FiCamera,
   FiCheckCircle, FiCalendar, FiHash,
 } from 'react-icons/fi';
+import {
+  isDoctorBiometricSupported,
+  registerDoctorBiometric,
+} from '../../utils/doctorBiometric';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -15,9 +21,60 @@ const fadeUp = {
 };
 
 const DoctorProfile = () => {
-  const { doctor, getDoctorProfile } = useDoctorStore();
+  const {
+    doctor,
+    getDoctorProfile,
+    fetchDoctorBiometricStatus,
+    startDoctorBiometricRegistration,
+    completeDoctorBiometricRegistration,
+  } = useDoctorStore();
+  const [biometricRegistered, setBiometricRegistered] = useState(false);
+  const [biometricCredentialCount, setBiometricCredentialCount] = useState(0);
+  const [isBiometricLoading, setIsBiometricLoading] = useState(false);
+  const biometricSupported = isDoctorBiometricSupported();
 
-  useEffect(() => { getDoctorProfile(); }, [getDoctorProfile]);
+  useEffect(() => {
+    const hydrateProfile = async () => {
+      await getDoctorProfile();
+      const status = await fetchDoctorBiometricStatus();
+      setBiometricRegistered(Boolean(status?.biometricRegistered));
+      setBiometricCredentialCount(Number(status?.credentialCount || 0));
+    };
+
+    hydrateProfile();
+  }, [getDoctorProfile, fetchDoctorBiometricStatus]);
+
+  const handleEnrollBiometric = async () => {
+    if (!biometricSupported) {
+      toast.error('Biometric enrollment is not supported on this browser/device.');
+      return;
+    }
+
+    try {
+      setIsBiometricLoading(true);
+      const optionsResponse = await startDoctorBiometricRegistration();
+      if (!optionsResponse?.success || !optionsResponse?.options) {
+        throw new Error('Unable to start biometric enrollment');
+      }
+
+      const registrationResponse = await registerDoctorBiometric(optionsResponse.options);
+      const verificationResult = await completeDoctorBiometricRegistration(registrationResponse);
+
+      if (verificationResult?.success) {
+        const status = await fetchDoctorBiometricStatus();
+        setBiometricRegistered(Boolean(status?.biometricRegistered));
+        setBiometricCredentialCount(Number(status?.credentialCount || 0));
+        toast.success('Fingerprint biometric enrolled successfully');
+      } else {
+        throw new Error(verificationResult?.message || 'Biometric enrollment failed');
+      }
+    } catch (error) {
+      console.error('Doctor biometric enrollment error:', error);
+      toast.error(error?.response?.data?.message || error.message || 'Biometric enrollment failed');
+    } finally {
+      setIsBiometricLoading(false);
+    }
+  };
 
   const avatarUrl = doctor?.photoURL ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor?.fullName || 'Doctor')}&background=6366f1&color=fff&bold=true&size=256`;
@@ -126,6 +183,58 @@ const DoctorProfile = () => {
         </motion.div>
 
         {/* Info Sections */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={1}
+          className="rounded-2xl overflow-hidden"
+          style={{ background: '#fff', border: '1.5px solid #e8edf5', boxShadow: '0 2px 12px rgba(15,23,42,0.04)' }}
+        >
+          <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid #f1f5f9' }}>
+            <div className="flex items-center justify-center rounded-xl" style={{ width: 38, height: 38, background: '#10b98115' }}>
+              <FaFingerprint style={{ color: '#10b981', fontSize: '1.05rem' }} />
+            </div>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Biometric Security</h3>
+          </div>
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-700">
+                Fingerprint verification is required for doctor login and each prescription upload.
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                If biometric verification fails or is unavailable, secure OTP fallback is sent to your registered email.
+              </p>
+              <p className="text-sm mt-3 font-semibold" style={{ color: biometricRegistered ? '#047857' : '#b45309' }}>
+                {biometricRegistered
+                  ? `Biometric is active (${biometricCredentialCount} credential${biometricCredentialCount === 1 ? '' : 's'})`
+                  : 'Biometric not enrolled yet'}
+              </p>
+              {!biometricSupported && (
+                <p className="text-xs text-red-600 mt-2">
+                  This browser/device does not support WebAuthn biometrics.
+                </p>
+              )}
+            </div>
+            <div className="flex md:justify-end">
+              <button
+                type="button"
+                onClick={handleEnrollBiometric}
+                disabled={isBiometricLoading || !biometricSupported}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'linear-gradient(135deg, #0ea5e9, #14b8a6)' }}
+              >
+                <FaFingerprint />
+                {isBiometricLoading
+                  ? 'Setting up...'
+                  : biometricRegistered
+                  ? 'Re-enroll Fingerprint'
+                  : 'Enroll Fingerprint'}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
         {infoSections.map((section, si) => (
           <motion.div key={section.title} variants={fadeUp} initial="hidden" animate="visible" custom={si + 1}
             className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1.5px solid #e8edf5', boxShadow: '0 2px 12px rgba(15,23,42,0.04)' }}>

@@ -326,6 +326,39 @@ export const DOCTOR_REJECTION_EMAIL_TEMPLATE = `
 </html>
 `;
 
+export const DOCTOR_BIOMETRIC_OTP_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Verification OTP</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #0f766e, #14b8a6); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Doctor Identity Verification</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello Dr. {doctorName},</p>
+    <p>We could not complete biometric verification for the following action:</p>
+    <p style="font-weight: bold; color: #0f766e;">{verificationContext}</p>
+    <p>Please use this one-time code to continue:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0f766e; background: #ccfbf1; padding: 8px 16px; border-radius: 4px;">{otpCode}</span>
+    </div>
+    <p>This code expires in <strong>{otpTtlMinutes} minutes</strong>.</p>
+    <div style="background-color: #fff7ed; border-left: 4px solid #f97316; padding: 10px; margin: 20px 0;">
+      <p style="margin: 0; color: #9a3412;"><strong>Security Notice:</strong> If you did not request this verification, immediately secure your account.</p>
+    </div>
+    <p>Best regards,<br>Medicare Security Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message. Please do not reply.</p>
+  </div>
+</body>
+</html>
+`;
+
 export const FAMILY_VAULT_INVITE_EMAIL_TEMPLATE = `
 <!DOCTYPE html>
 <html lang="en">

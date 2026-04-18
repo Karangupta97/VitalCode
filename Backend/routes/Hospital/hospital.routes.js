@@ -10,11 +10,26 @@ import {
   getPrescriptionById,
   getPatientPrescriptions,
   getDoctorPrescriptions,
-  getOtherDoctorPrescriptions
+  getOtherDoctorPrescriptions,
+  scanPrescriptionQRCode,
+  updatePrescriptionLifecycleByPharmacy,
+  getPrescriptionLifecycle,
 } from "../../controllers/Hospital/prescription.controller.js";
 import { refreshReportUrl } from "../../controllers/User/reports.controller.js";
 
 const router = express.Router();
+
+const markPublicPharmacyScan = (req, _res, next) => {
+  req.publicPharmacyScan = true;
+  next();
+};
+
+// Public scan endpoint for pharmacy UI demo flow (Digital Prescription QR only)
+router.post(
+  "/digital-prescriptions/scan/public",
+  markPublicPharmacyScan,
+  scanPrescriptionQRCode
+);
 
 // All routes are protected with verifyToken middleware
 router.use(verifyToken);
@@ -39,8 +54,17 @@ router.get("/patient/:patientId/other-prescriptions", getOtherDoctorPrescription
 
 // Prescription routes - Specific routes before pattern routes
 router.post("/digital-prescriptions", createPrescription);
+router.post("/digital-prescriptions/scan", scanPrescriptionQRCode);
 router.get("/digital-prescriptions/patient/:patientId", getPatientPrescriptions);
 router.get("/digital-prescriptions/doctor", getDoctorPrescriptions);
+router.patch(
+  "/digital-prescriptions/:prescriptionId/lifecycle",
+  updatePrescriptionLifecycleByPharmacy
+);
+router.get(
+  "/digital-prescriptions/:prescriptionId/lifecycle",
+  getPrescriptionLifecycle
+);
 // This must come after more specific routes
 router.get("/digital-prescriptions/:prescriptionId", getPrescriptionById);
 

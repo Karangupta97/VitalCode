@@ -15,6 +15,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useFounderStore } from "./store/founderStore";
 import { useStaffStore } from "./store/staffStore";
 import { useDoctorStore } from "./store/doctorStore";
+import { usePharmacyStore } from "./store/pharmacyStore";
 import RestoreButton from "./components/RestoreButton";
 
 //Admin
@@ -43,6 +44,7 @@ import FamilyVaultMemberDetail from "./pages/User/FamilyVaultMemberDetail";
 //Hospital
 import FindPatient from "./pages/Hospital/FindPatient";
 import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
+import PrescriptionScanner from "./pages/Hospital/PrescriptionScanner";
 //Founder
 import FounderLogin from "./pages/Founder/FounderLogin";
 import FounderDashboard from "./pages/Founder/FounderDashboard";
@@ -68,6 +70,16 @@ import DoctorMedicalRecords from "./pages/Doctor/MedicalRecords";
 import DoctorHospitals from "./pages/Doctor/Hospitals";
 import DoctorEmergencyFolder from "./pages/Doctor/EmergencyFolder";
 import DoctorSharedReports from "./pages/Doctor/SharedReports";
+// Pharmacy Pages
+import PharmacyLogin from "./pages/Pharmacy/Login";
+import PharmacyRegister from "./pages/Pharmacy/Register";
+import PharmacyDashboard from "./pages/Pharmacy/Dashboard";
+import ScanPrescription from "./pages/Pharmacy/ScanPrescription";
+import DispenseHistory from "./pages/Pharmacy/DispenseHistory";
+import StockInventory from "./pages/Pharmacy/StockInventory";
+import DoctorRequests from "./pages/Pharmacy/DoctorRequests";
+import LicenseProfile from "./pages/Pharmacy/LicenseProfile";
+import PharmacySettings from "./pages/Pharmacy/Settings";
 //piblic
 import Home from "./pages/Home";
 import Services from "./pages/Services";
@@ -330,6 +342,36 @@ const RedirectAuthenticatedDoctor = ({ children }) => {
   return children;
 };
 
+// Protected route for pharmacy
+const PharmacyRoute = ({ children }) => {
+  const { isAuthenticated, isCheckingAuth } = usePharmacyStore();
+
+  if (isCheckingAuth) {
+    return <Loading />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/pharmacy/login" replace />;
+  }
+
+  return children;
+};
+
+// Redirect authenticated pharmacy to dashboard
+const RedirectAuthenticatedPharmacy = ({ children }) => {
+  const { isAuthenticated, isCheckingAuth } = usePharmacyStore();
+
+  if (isCheckingAuth) {
+    return <Loading />;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/pharmacy/dashboard" replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   const { isAuthenticated, checkAuth } = useAuthStore();
   const {
@@ -344,6 +386,10 @@ const App = () => {
     isAuthenticated: isDoctorAuthenticated,
     checkAuthStatus: checkDoctorAuth,
   } = useDoctorStore();
+  const {
+    isAuthenticated: isPharmacyAuthenticated,
+    checkAuthStatus: checkPharmacyAuth,
+  } = usePharmacyStore();
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
@@ -366,6 +412,15 @@ const App = () => {
           if (!isDoctorAuthenticated) {
             await checkDoctorAuth();
           }
+        } else if (location.pathname.startsWith("/pharmacy")) {
+          const isPharmacyGuestRoute =
+            location.pathname === "/pharmacy/login" ||
+            location.pathname === "/pharmacy/register";
+
+          // Don't block login/register on remote auth checks in dev.
+          if (!isPharmacyGuestRoute && !isPharmacyAuthenticated) {
+            await checkPharmacyAuth();
+          }
         } else {
           if (!isAuthenticated) {
             await checkAuth();
@@ -385,9 +440,11 @@ const App = () => {
     checkFounderAuth,
     checkStaffAuth,
     checkDoctorAuth,
+    checkPharmacyAuth,
     isFounderAuthenticated,
     isStaffAuthenticated,
     isDoctorAuthenticated,
+    isPharmacyAuthenticated,
     isAuthenticated,
   ]);
 
@@ -508,6 +565,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <FindPatient />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/prescription-scanner"
+            element={
+              <ProtectedRoute>
+                <PrescriptionScanner />
               </ProtectedRoute>
             }
           />
@@ -761,6 +826,81 @@ const App = () => {
               </DoctorRoute>
             }
           />
+
+          {/* Pharmacy Routes */}
+          <Route
+            path="/pharmacy/login"
+            element={
+              <RedirectAuthenticatedPharmacy>
+                <PharmacyLogin />
+              </RedirectAuthenticatedPharmacy>
+            }
+          />
+          <Route
+            path="/pharmacy/register"
+            element={
+              <RedirectAuthenticatedPharmacy>
+                <PharmacyRegister />
+              </RedirectAuthenticatedPharmacy>
+            }
+          />
+          <Route
+            path="/pharmacy/dashboard"
+            element={
+              <PharmacyRoute>
+                <PharmacyDashboard />
+              </PharmacyRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/scan-prescription"
+            element={
+              <PharmacyRoute>
+                <ScanPrescription />
+              </PharmacyRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/dispense-history"
+            element={
+              <PharmacyRoute>
+                <DispenseHistory />
+              </PharmacyRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/inventory"
+            element={
+              <PharmacyRoute>
+                <StockInventory />
+              </PharmacyRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/doctor-requests"
+            element={
+              <PharmacyRoute>
+                <DoctorRequests />
+              </PharmacyRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/license-profile"
+            element={
+              <PharmacyRoute>
+                <LicenseProfile />
+              </PharmacyRoute>
+            }
+          />
+          <Route
+            path="/pharmacy/settings"
+            element={
+              <PharmacyRoute>
+                <PharmacySettings />
+              </PharmacyRoute>
+            }
+          />
+
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />

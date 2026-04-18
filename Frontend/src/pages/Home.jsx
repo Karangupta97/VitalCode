@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { FiSearch, FiArrowRight, FiStar, FiCheck, FiExternalLink, FiLinkedin, FiGithub, FiMail, FiInstagram as FiInstagramIcon, FiMapPin, FiCalendar, FiCode, FiActivity } from "react-icons/fi";
+import { FiSearch, FiArrowRight, FiStar, FiCheck, FiExternalLink, FiCalendar, FiCode, FiActivity } from "react-icons/fi";
 import { FaTwitter, FaInstagram, FaAws } from "react-icons/fa";
 import { SiReact, SiNodedotjs, SiMongodb, SiExpress, SiJavascript, SiDocker, SiGit } from "react-icons/si";
 import axios from "axios";
@@ -10,7 +10,6 @@ import nurse from "../assets/nurse.png";
 import Logo from "../assets/Logo/hand logo.png";
 import HealthRecordsimage from "../assets/HealthRecords.png";
 import FindHospitalimage from "../assets/FindHospital.png";
-import SelfImage from "../assets/Self.jpg";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingActionButton from "../components/FloatingActionButton";
@@ -1081,145 +1080,6 @@ const Home = () => {
                     className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg transition-all duration-300 hover:bg-[#363b7e] shadow-md"
                   >
                     Explore All Services
-                    <FiArrowRight className="ml-2" />
-                  </motion.button>
-                </Link>
-              </motion.div>
-            </div>
-          </motion.section>
-
-          {/* Meet Our Team Section */}
-          <motion.section
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="w-full py-14 my-4 md:py-16 md:my-8 bg-gradient-to-b from-white to-[#eef1ff]"
-          >
-            <div className="max-w-7xl mx-auto px-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="text-center mb-12 md:mb-16"
-              >
-                <h2 className="text-2xl md:text-4xl font-bold text-primary mb-4">
-                  Meet Our Team
-                </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto font-normal">
-                  The passionate minds behind Medicare's mission to revolutionize healthcare management
-                </p>
-              </motion.div>
-
-              {/* Team Member Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="max-w-4xl mx-auto"
-              >
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-                  <div className="lg:flex">
-                    {/* Image Section */}
-                    <div className="lg:w-2/5 relative">
-                      <div className="aspect-square lg:aspect-auto lg:h-full relative overflow-hidden">
-                        <img
-                          src={SelfImage}
-                          alt="Karan Gupta - Founder & CEO"
-                          className="w-full h-full object-cover object-center"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
-                      </div>
-                    </div>
-
-                    {/* Content Section */}
-                    <div className="lg:w-3/5 p-8 lg:p-12">
-                      <div className="mb-6">
-                        <h3 className="text-2xl lg:text-3xl font-bold text-primary mb-2">
-                          Karan Gupta
-                        </h3>
-                        <p className="text-lg text-gray-600 font-medium mb-1">
-                          Founder & CEO of Medicare
-                        </p>
-                        <p className="text-md text-gray-500 mb-3">
-                          Full Stack Developer
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500 mb-4">
-                          <FiMapPin className="w-4 h-4 mr-1" />
-                          <span>India</span>
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <p className="text-gray-700 leading-relaxed mb-4">
-                          Passionate about healthcare technology and committed to creating innovative solutions that improve patient care and medical record management. Specialized in building secure, scalable, and user-friendly healthcare applications.
-                        </p>
-                      </div>
-
-                      {/* Social Links */}
-                      <div className="flex items-center space-x-4">
-                        <span className="text-sm font-medium text-gray-700">Connect:</span>
-                        {[
-                          {
-                            icon: FiLinkedin,
-                            href: "https://www.linkedin.com/in/karan-gupta-14a0a4260",
-                            color: "text-blue-600 hover:text-blue-700"
-                          },
-                          {
-                            icon: FiGithub,
-                            href: "https://github.com/Karangupta97",
-                            color: "text-gray-700 hover:text-gray-900"
-                          },
-                          {
-                            icon: FiMail,
-                            href: "mailto:karangupta3319@gmail.com",
-                            color: "text-red-600 hover:text-red-700"
-                          },
-                          {
-                            icon: FiInstagramIcon,
-                            href: "https://www.instagram.com/karangupta.19/",
-                            color: "text-pink-600 hover:text-pink-700"
-                          }
-                        ].map((social, index) => (
-                          <motion.a
-                            key={index}
-                            href={social.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.3, delay: index * 0.1 }}
-                            className={`w-10 h-10 flex items-center justify-center rounded-full border-2 border-gray-200 hover:border-current transition-all duration-200 ${social.color}`}
-                          >
-                            <social.icon className="w-4 h-4" />
-                          </motion.a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Call to Action */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="mt-12 text-center"
-              >
-                <Link to="/team">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg transition-all duration-300 hover:bg-[#363b7e] shadow-md"
-                  >
-                    View Full Team
                     <FiArrowRight className="ml-2" />
                   </motion.button>
                 </Link>

@@ -12,7 +12,9 @@ import MedicareLogo from "../../assets/Logo/Medicare logo 1.png"; // Import the 
   FiMenu,
   FiActivity,
   FiX,
-  FiSearch} from "react-icons/fi";
+  FiSearch,
+  FiCamera,
+} from "react-icons/fi";
 import { useAuthStore } from "../../store/Patient/authStore";
 import LogoutModal from "../User/LogoutModal";
 
@@ -62,10 +64,11 @@ const HospitalDashboardLayout = ({ children }) => {
   const menuItems = [
     { icon: FiGrid, label: "Dashboard", path: "/hospital/dashboard" },
     { icon: FiSearch, label: "Find Patient", path: "/hospital/find-patient" },
+    { icon: FiCamera, label: "Prescription Scanner", path: "/hospital/prescription-scanner" },
     { icon: FiUser, label: "Profile", path: "/hospital/profile" },
     { icon: FiSettings, label: "Settings", path: "/hospital/settings" },
     { icon: FiHelpCircle, label: "Help", path: "/hospital/help" },
-    { icon: FiActivity, label: "Anilit", path: "/hospital/analytics" },
+    { icon: FiActivity, label: "Analytics", path: "/hospital/analytics" },
   ];
 
   useEffect(() => {

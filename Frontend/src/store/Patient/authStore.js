@@ -10,6 +10,17 @@ const API_URL =
     : "https://api.medicares.in";
 const DEBUG_API_LOGS = import.meta.env.DEV && import.meta.env.VITE_DEBUG_API === "true";
 
+const getRequestUrl = (configOrError) => String(configOrError?.url || configOrError?.config?.url || "");
+const isCrossRoleRequest = (configOrError) => {
+  const requestUrl = getRequestUrl(configOrError);
+  return (
+    requestUrl.includes('/api/doctor') ||
+    requestUrl.includes('/api/founder') ||
+    requestUrl.includes('/api/staff') ||
+    requestUrl.includes('/api/pharmacy')
+  );
+};
+
 // Global request timestamps to prevent duplicate requests
 const requestTimestamps = {
   profile: 0
@@ -37,8 +48,15 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 // Add axios interceptor to add token to all requests
 axios.interceptors.request.use(
   (config) => {
+    if (!config.headers) {
+      config.headers = {};
+    }
+
+    const existingAuthHeader =
+      config.headers.Authorization || config.headers.authorization;
+    const skipTokenInjection = isCrossRoleRequest(config);
     const token = safeStorageAccess.getItem('token');
-    if (token) {
+    if (!existingAuthHeader && token && !skipTokenInjection) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
@@ -76,6 +94,14 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (axios.isCancel(error) || error?.code === 'ERR_CANCELED') {
+      return Promise.reject(error);
+    }
+
+    if (isCrossRoleRequest(error)) {
+      return Promise.reject(error);
+    }
+
     console.error('Axios error:', error);
     
     // Log detailed error information

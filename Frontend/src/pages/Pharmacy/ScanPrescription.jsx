@@ -13,20 +13,66 @@ import {
 import PharmacyDashboardLayout from '../../components/Pharmacy/PharmacyDashboardLayout';
 import { usePharmacyStore } from '../../store/pharmacyStore';
 
-const sampleMedicines = [
-  { medicine: 'Paracetamol 650mg', dosage: '1 tablet', qty: 10, frequency: 'SOS', duration: '5 days' },
-  { medicine: 'Azithromycin 500mg', dosage: '1 tablet', qty: 3, frequency: 'OD', duration: '3 days' },
-  { medicine: 'Pantoprazole 40mg', dosage: '1 tablet', qty: 5, frequency: 'Before breakfast', duration: '5 days' },
-];
+const BLOCKED_REASON_LABELS = {
+  TAMPERED_DATA: 'Invalid or tampered Digital Prescription QR',
+  EXPIRED_QR: 'Digital Prescription QR has expired',
+  MISMATCH_USER: 'QR user mismatch detected',
+  ALREADY_USED: 'Prescription is already delivered',
+  MULTIPLE_SCAN: 'Prescription was already scanned',
+  ALREADY_FLAGGED: 'Prescription is flagged for suspicious activity',
+  PRESCRIPTION_NOT_FOUND: 'Prescription record not found',
+};
 
-const buildPrescription = (prescriptionId) => ({
-  prescriptionId,
-  patient: { name: 'Rahul Sharma', age: 34, gender: 'Male' },
-  doctor: { name: 'Dr. Kavya Menon', license: 'MH-77812', verified: true },
-  issuedAt: '18 Apr 2026, 09:15 AM',
-  expiry: '22 Apr 2026',
-  medicines: sampleMedicines,
-});
+const ALREADY_SCANNED_REASONS = new Set(['ALREADY_USED', 'MULTIPLE_SCAN']);
+
+const formatDateTime = (value) => {
+  if (!value) return 'N/A';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return 'N/A';
+  return parsed.toLocaleString('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const formatPrescriptionForDisplay = (prescription) => {
+  const timeline = Array.isArray(prescription?.lifecycleTimeline)
+    ? prescription.lifecycleTimeline
+    : [];
+  const deliveredEvent = timeline
+    .slice()
+    .reverse()
+    .find((entry) => entry?.status === 'DELIVERED');
+
+  return {
+    prescriptionId: prescription?._id || 'N/A',
+    patient: {
+      name: prescription?.patientName || 'Unknown Patient',
+      age: '--',
+      gender: '--',
+    },
+    doctor: {
+      name: prescription?.doctor || 'Unknown Doctor',
+      license: '',
+      verified: true,
+    },
+    issuedAt: formatDateTime(prescription?.createdAt),
+    expiry: formatDateTime(prescription?.qrMeta?.lastExpiresAt),
+    lifecycleStatus: prescription?.lifecycleStatus || 'CREATED',
+    dispensedAt: deliveredEvent?.timestamp ? formatDateTime(deliveredEvent.timestamp) : null,
+    dispensedBy: deliveredEvent?.actorName || null,
+    medicines: (prescription?.medications || []).map((item) => ({
+      medicine: item?.name || 'Unnamed Medicine',
+      dosage: item?.dosage || '--',
+      qty: item?.qty || '--',
+      frequency: item?.frequency || '--',
+      duration: item?.duration || '--',
+    })),
+  };
+};
 
 const tabButtonStyle = (isActive) => ({
   padding: '0.62rem 0.95rem',
@@ -39,17 +85,22 @@ const tabButtonStyle = (isActive) => ({
 });
 
 const ScanPrescription = () => {
-  const { pushPrescriptionScanNotification, pharmacy } = usePharmacyStore();
+  const {
+    pushPrescriptionScanNotification,
+    scanDigitalPrescriptionQr,
+    pharmacy,
+  } = usePharmacyStore();
 
   const [activeTab, setActiveTab] = useState('scan');
   const [manualId, setManualId] = useState('');
   const [scanState, setScanState] = useState(null);
-  const [invalidReason, setInvalidReason] = useState('Signature mismatch');
+  const [invalidReason, setInvalidReason] = useState('Invalid Digital Prescription QR');
   const [prescriptionData, setPrescriptionData] = useState(null);
   const [selectedMedicines, setSelectedMedicines] = useState({});
   const [dispenseSummary, setDispenseSummary] = useState(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState('');
+  const [isVerifyingQr, setIsVerifyingQr] = useState(false);
 
   const fileInputRef = useRef(null);
   const cameraVideoRef = useRef(null);
@@ -70,8 +121,8 @@ const ScanPrescription = () => {
     }
   };
 
-  const showValidPrescription = (id) => {
-    const payload = buildPrescription(id || 'RX123456');
+  const showValidPrescription = (prescription) => {
+    const payload = formatPrescriptionForDisplay(prescription);
     setPrescriptionData(payload);
     setScanState('valid');
     setInvalidReason('');
@@ -94,38 +145,51 @@ const ScanPrescription = () => {
     pushPrescriptionScanNotification('invalid', id);
   };
 
-  const showAlreadyDispensed = (id) => {
+  const showAlreadyDispensed = (prescription, blockedReason) => {
+    const payload = formatPrescriptionForDisplay(prescription);
     setPrescriptionData({
-      prescriptionId: id,
-      dispensedAt: '17 Apr 2026, 06:42 PM',
-      pharmacyName: 'Cityline Pharmacy, Pune',
+      prescriptionId: payload.prescriptionId,
+      dispensedAt: payload.dispensedAt || 'N/A',
+      pharmacyName: payload.dispensedBy || 'Previously processed',
+      blockedReason,
     });
     setScanState('already');
     setInvalidReason('');
     setDispenseSummary(null);
-    pushPrescriptionScanNotification('already', id);
+    pushPrescriptionScanNotification('already', payload.prescriptionId);
   };
 
-  const verifyPrescriptionId = () => {
-    const trimmed = manualId.trim().toUpperCase();
+  const verifyPrescriptionQr = async () => {
+    const trimmed = manualId.trim();
     if (!trimmed) return;
 
-    if (trimmed.includes('TAMPER') || trimmed.includes('MISMATCH')) {
-      showInvalidPrescription('Signature mismatch', trimmed);
-      return;
-    }
+    setIsVerifyingQr(true);
+    try {
+      const response = await scanDigitalPrescriptionQr(trimmed);
+      if (response?.success && response?.prescription) {
+        showValidPrescription(response.prescription);
+        return;
+      }
 
-    if (trimmed.includes('EXPIRE') || trimmed.includes('EXP')) {
-      showInvalidPrescription('Prescription expired', trimmed);
-      return;
-    }
+      showInvalidPrescription('Unable to validate Digital Prescription QR');
+    } catch (error) {
+      const data = error?.response?.data;
+      const reason = data?.reason || 'TAMPERED_DATA';
+      const reasonLabel =
+        BLOCKED_REASON_LABELS[reason] ||
+        data?.message ||
+        'Invalid Digital Prescription QR';
 
-    if (trimmed.includes('USED') || trimmed.includes('DISP')) {
-      showAlreadyDispensed(trimmed);
-      return;
-    }
+      if (ALREADY_SCANNED_REASONS.has(reason) && data?.prescription) {
+        showAlreadyDispensed(data.prescription, reasonLabel);
+        return;
+      }
 
-    showValidPrescription(trimmed);
+      const prescriptionId = data?.prescription?._id || 'RX-UNKNOWN';
+      showInvalidPrescription(reasonLabel, prescriptionId);
+    } finally {
+      setIsVerifyingQr(false);
+    }
   };
 
   const stopCameraStream = () => {
@@ -153,7 +217,10 @@ const ScanPrescription = () => {
 
   const processPhotoFile = (file) => {
     if (!file) return;
-    showValidPrescription(`RX${Math.floor(100000 + Math.random() * 900000)}`);
+    closeLiveCamera();
+    setCameraError(
+      'Automatic image QR decoding is not enabled. Paste Digital Prescription QR payload below.'
+    );
   };
 
   const openLiveCamera = async () => {
@@ -256,10 +323,10 @@ const ScanPrescription = () => {
         >
           <div className="inline-flex items-center gap-2 p-1 rounded-xl" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
             <button style={tabButtonStyle(activeTab === 'scan')} onClick={() => setActiveTab('scan')}>
-              Scan QR Code
+              Scan QR
             </button>
             <button style={tabButtonStyle(activeTab === 'manual')} onClick={() => setActiveTab('manual')}>
-              Enter ID Manually
+              Paste QR Payload
             </button>
           </div>
 
@@ -307,16 +374,16 @@ const ScanPrescription = () => {
                   style={{ border: '1px solid #14b8a6', color: '#0f766e', fontWeight: 700, fontSize: '0.78rem' }}
                 >
                   <Camera style={{ width: 14, height: 14 }} />
-                  Capture Live Photo Instead
+                  Capture Live Photo
                 </button>
 
                 <button
                   type="button"
                   className="px-4 py-2 rounded-xl"
                   style={{ background: '#0f766e', color: '#fff', fontWeight: 700, fontSize: '0.78rem' }}
-                  onClick={() => showValidPrescription(`RX${Math.floor(100000 + Math.random() * 900000)}`)}
+                  onClick={() => setActiveTab('manual')}
                 >
-                  Simulate Live Scan
+                  Paste Digital QR Payload
                 </button>
               </div>
 
@@ -329,28 +396,32 @@ const ScanPrescription = () => {
                 onChange={handleUpload}
               />
 
-              <canvas ref={cameraCanvasRef} className="hidden" />
-
-              {cameraError && (
+              {cameraError ? (
                 <p style={{ color: '#b45309', fontSize: '0.76rem', marginTop: 10 }}>{cameraError}</p>
-              )}
+              ) : null}
             </div>
           ) : (
-            <div className="mt-4 max-w-lg">
-              <label style={{ color: '#334155', fontSize: '0.82rem', fontWeight: 700 }}>Enter Prescription ID</label>
-              <input
+            <div className="mt-4 max-w-3xl">
+              <label style={{ color: '#334155', fontSize: '0.82rem', fontWeight: 700 }}>
+                Digital Prescription QR Payload (JSON)
+              </label>
+              <textarea
                 value={manualId}
                 onChange={(event) => setManualId(event.target.value)}
-                placeholder="e.g. RX123456"
+                placeholder='Paste payload from patient QR (example: {"prescription_id":"...","patient_id":"...","iat":12345})'
                 className="w-full mt-2 rounded-xl px-3 py-2.5"
-                style={{ border: '1px solid #cbd5e1', fontSize: '0.85rem', fontWeight: 500, color: '#0f172a' }}
+                rows={6}
+                style={{ border: '1px solid #cbd5e1', fontSize: '0.8rem', fontWeight: 500, color: '#0f172a' }}
               />
+
               <button
-                onClick={verifyPrescriptionId}
+                type="button"
+                onClick={verifyPrescriptionQr}
                 className="w-full mt-3 py-2.5 rounded-xl"
-                style={{ background: '#0f766e', color: '#fff', fontSize: '0.82rem', fontWeight: 700 }}
+                disabled={isVerifyingQr || !manualId.trim()}
+                style={{ background: '#0f766e', color: '#fff', fontSize: '0.82rem', fontWeight: 700, opacity: isVerifyingQr || !manualId.trim() ? 0.6 : 1 }}
               >
-                Verify Prescription
+                {isVerifyingQr ? 'Validating...' : 'Validate Digital Prescription QR'}
               </button>
             </div>
           )}
@@ -371,7 +442,8 @@ const ScanPrescription = () => {
                 <h3 style={{ color: '#0f172a', fontSize: '0.92rem', fontWeight: 800 }}>Patient & Doctor Info</h3>
                 <p style={{ color: '#334155', fontSize: '0.8rem' }}>Patient: <span style={{ fontWeight: 700 }}>{prescriptionData.patient.name}</span>, {prescriptionData.patient.age}, {prescriptionData.patient.gender}</p>
                 <p style={{ color: '#334155', fontSize: '0.8rem' }}>
-                  Doctor: <span style={{ fontWeight: 700 }}>{prescriptionData.doctor.name}</span> - License #{prescriptionData.doctor.license}{' '}
+                  Doctor: <span style={{ fontWeight: 700 }}>{prescriptionData.doctor.name}</span>{' '}
+                  {prescriptionData.doctor.license ? `- License #${prescriptionData.doctor.license}` : ''}{' '}
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.68rem', fontWeight: 700 }}>
                     verified
                   </span>
@@ -396,6 +468,9 @@ const ScanPrescription = () => {
                   </button>
                 </div>
                 <p style={{ color: '#334155', fontSize: '0.8rem' }}>Expiry: <span style={{ fontWeight: 700 }}>Valid until {prescriptionData.expiry}</span></p>
+                <p style={{ color: '#334155', fontSize: '0.8rem' }}>
+                  Lifecycle: <span style={{ fontWeight: 700 }}>{prescriptionData.lifecycleStatus}</span>
+                </p>
               </div>
 
               <div>
@@ -546,9 +621,11 @@ const ScanPrescription = () => {
               <div>
                 <h3 style={{ color: '#9a3412', fontSize: '1.04rem', fontWeight: 800 }}>Already Dispensed</h3>
                 <p style={{ color: '#9a3412', fontSize: '0.82rem', marginTop: 6 }}>
-                  This prescription was dispensed on {prescriptionData.dispensedAt} at {prescriptionData.pharmacyName}
+                  This prescription was already processed. Last delivered at {prescriptionData.dispensedAt} by {prescriptionData.pharmacyName}
                 </p>
-                <button style={{ color: '#0f766e', fontSize: '0.8rem', fontWeight: 700, marginTop: 10 }}>View Dispense Record</button>
+                <p style={{ color: '#9a3412', fontSize: '0.78rem', marginTop: 8 }}>
+                  Reason: {prescriptionData.blockedReason || 'Already scanned'}
+                </p>
               </div>
             </div>
           </section>

@@ -13,6 +13,26 @@ axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Content-Type"] = "application/json";
 
+const upsertPrescriptionInList = (prescriptions, updatedPrescription) => {
+  if (!updatedPrescription?._id) {
+    return prescriptions;
+  }
+
+  const exists = prescriptions.some(
+    (prescription) => String(prescription._id) === String(updatedPrescription._id)
+  );
+
+  if (!exists) {
+    return [updatedPrescription, ...prescriptions];
+  }
+
+  return prescriptions.map((prescription) =>
+    String(prescription._id) === String(updatedPrescription._id)
+      ? { ...prescription, ...updatedPrescription }
+      : prescription
+  );
+};
+
 const usePatientStore = create((set, get) => ({
   // State
   reports: [],
@@ -378,10 +398,91 @@ const usePatientStore = create((set, get) => ({
     }
   },
 
+  // Generate secure QR payload for a prescription
+  generatePrescriptionQr: async (token, prescriptionId) => {
+    try {
+      set({ isLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.post(
+        `/api/user/digital-prescriptions/${prescriptionId}/qr/generate`
+      );
+
+      set({ isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to generate prescription QR",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // Request OTP for delivery confirmation
+  requestPrescriptionDeliveryOtp: async (token, prescriptionId) => {
+    try {
+      set({ isLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.post(
+        `/api/user/digital-prescriptions/${prescriptionId}/delivery/request-otp`
+      );
+
+      set({ isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({
+        error:
+          error.response?.data?.message ||
+          "Failed to request delivery confirmation OTP",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // Confirm delivery using button or OTP
+  confirmPrescriptionDelivery: async (token, prescriptionId, payload = {}) => {
+    try {
+      set({ isLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.post(
+        `/api/user/digital-prescriptions/${prescriptionId}/delivery/confirm`,
+        payload
+      );
+
+      const updatedPrescription = response.data?.prescription;
+      set((state) => ({
+        prescriptions: updatedPrescription
+          ? upsertPrescriptionInList(state.prescriptions, updatedPrescription)
+          : state.prescriptions,
+        isLoading: false,
+      }));
+
+      return response.data;
+    } catch (error) {
+      set({
+        error:
+          error.response?.data?.message ||
+          "Failed to confirm prescription delivery",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   // Create a new prescription (for doctors/hospitals)
   createPrescription: async (prescriptionData, token) => {
     try {
       set({ isLoading: true, error: null });
+
+      const resolvedToken =
+        token ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("doctor_auth_token")
+          : null);
 
       // Create a dedicated axios instance for prescription creation to avoid cancellation
       const prescriptionAxios = axios.create({
@@ -389,7 +490,7 @@ const usePatientStore = create((set, get) => ({
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : undefined,
+          Authorization: resolvedToken ? `Bearer ${resolvedToken}` : undefined,
         },
       });
 

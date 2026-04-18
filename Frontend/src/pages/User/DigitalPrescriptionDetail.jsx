@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
+import PrescriptionQRModal from "../../components/User/PrescriptionQRModal";
 import {
   FiFileText,
   FiUser,
@@ -15,7 +16,18 @@ import {
   FiInfo,
   FiBriefcase,
   FiRefreshCw,
-  FiClock} from "react-icons/fi";
+  FiClock,
+  FiShield,
+} from "react-icons/fi";
+
+const STATUS_META = {
+  CREATED: { label: "CREATED", className: "bg-slate-50 text-slate-700 border-slate-200" },
+  SCANNED: { label: "SCANNED", className: "bg-blue-50 text-blue-700 border-blue-200" },
+  ACCEPTED: { label: "ACCEPTED", className: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+  IN_PROCESS: { label: "IN PROCESS", className: "bg-amber-50 text-amber-800 border-amber-200" },
+  DELIVERED: { label: "DELIVERED", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  FLAGGED: { label: "FLAGGED", className: "bg-red-50 text-red-700 border-red-200" },
+};
 
 const PrescriptionDetail = () => {
   const { id } = useParams();
@@ -24,9 +36,17 @@ const PrescriptionDetail = () => {
   const { 
     isLoading,
     error,
-    getPrescriptionById
+    getPrescriptionById,
+    generatePrescriptionQr,
+    requestPrescriptionDeliveryOtp,
+    confirmPrescriptionDelivery,
   } = usePatientStore();
   const [prescription, setPrescription] = useState(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [qrPayload, setQrPayload] = useState(null);
+  const [otpInput, setOtpInput] = useState("");
+  const [isSubmittingConfirmation, setIsSubmittingConfirmation] = useState(false);
   const prescriptionRef = useRef(null);
 
   // Fetch prescription details
@@ -72,6 +92,88 @@ const PrescriptionDetail = () => {
   // Handle share prescription
   const handleShare = () => {
     toast.success("Share functionality coming soon!");
+  };
+
+  const lifecycleStatusKey = (prescription?.lifecycleStatus || "CREATED")
+    .toString()
+    .toUpperCase();
+  const lifecycleMeta = STATUS_META[lifecycleStatusKey] || STATUS_META.CREATED;
+  const suspiciousEvents = Array.isArray(prescription?.suspiciousActivity)
+    ? prescription.suspiciousActivity
+    : [];
+
+  const refreshPrescriptionDetails = async () => {
+    if (!token || !id) {
+      return;
+    }
+
+    const prescriptionData = await getPrescriptionById(token, id);
+    setPrescription(prescriptionData);
+  };
+
+  const handleGenerateQr = async () => {
+    if (!token || !prescription?._id) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    setIsQrModalOpen(true);
+    setIsGeneratingQr(true);
+
+    try {
+      const response = await generatePrescriptionQr(token, prescription._id);
+      setQrPayload(response);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to generate secure QR");
+      setQrPayload(null);
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  const handleRequestOtp = async () => {
+    if (!token || !prescription?._id) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    try {
+      const response = await requestPrescriptionDeliveryOtp(token, prescription._id);
+      toast.success("Delivery OTP generated");
+      if (response?.otp) {
+        toast.success(`Dev OTP: ${response.otp}`);
+      }
+      await refreshPrescriptionDetails();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to request OTP");
+    }
+  };
+
+  const handleConfirmDelivery = async (method) => {
+    if (!token || !prescription?._id) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    if (method === "otp" && !otpInput.trim()) {
+      toast.error("Enter OTP first");
+      return;
+    }
+
+    setIsSubmittingConfirmation(true);
+    try {
+      await confirmPrescriptionDelivery(token, prescription._id, {
+        method,
+        otp: method === "otp" ? otpInput.trim() : undefined,
+      });
+      toast.success("Delivery confirmed");
+      setOtpInput("");
+      await refreshPrescriptionDetails();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to confirm delivery");
+    } finally {
+      setIsSubmittingConfirmation(false);
+    }
   };
 
   // Loading state
@@ -212,20 +314,33 @@ const PrescriptionDetail = () => {
           </div>
           {/* Main content */}
           <div className="p-2 sm:p-4">
+            {lifecycleStatusKey === "FLAGGED" && (
+              <div className="mb-4 p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 flex items-start gap-2">
+                <FiAlertTriangle className="mt-0.5 shrink-0" />
+                <span className="text-xs font-medium">
+                  This prescription has been flagged due to suspicious activity and is blocked for processing.
+                </span>
+              </div>
+            )}
+
+            {suspiciousEvents.length > 0 && (
+              <div className="mb-4 p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-700">
+                <p className="text-xs font-medium">
+                  Suspicious activity events detected: {suspiciousEvents.length}
+                </p>
+              </div>
+            )}
+
             {/* Status banner */}
-            <div className={`mb-4 p-2 rounded-lg flex items-center
-              ${prescription.status === "Active" 
-                ? "bg-green-50 text-green-700 border border-green-200" 
-                : "bg-blue-50 text-blue-700 border border-blue-200"}`}
+            <div
+              className={`mb-4 p-2 rounded-lg border flex items-center ${lifecycleMeta.className}`}
             >
-              {prescription.status === "Active" ? (
+              {lifecycleStatusKey === "DELIVERED" ? (
                 <FiCheckCircle className="mr-2 shrink-0" />
               ) : (
                 <FiInfo className="mr-2 shrink-0" />
               )}
-              <span className="text-xs font-medium">
-                This prescription is currently {prescription.status || "Active"}
-              </span>
+              <span className="text-xs font-medium">Current lifecycle status: {lifecycleMeta.label}</span>
             </div>
             {/* Doctor and Hospital Info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-4">
@@ -368,6 +483,104 @@ const PrescriptionDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* Lifecycle Timeline */}
+            <div className="mb-4">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-800 mb-2">Lifecycle Timeline</h3>
+              <div className="bg-gray-50 rounded-lg border border-gray-200 p-3">
+                {Array.isArray(prescription.lifecycleTimeline) && prescription.lifecycleTimeline.length > 0 ? (
+                  <div className="space-y-2">
+                    {prescription.lifecycleTimeline
+                      .slice()
+                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                      .map((entry, index) => (
+                        <div
+                          key={`${entry.action}-${entry.timestamp}-${index}`}
+                          className="flex items-start justify-between gap-3 rounded-lg bg-white border border-gray-200 px-3 py-2"
+                        >
+                          <div>
+                            <p className="text-xs font-semibold text-gray-800">
+                              {entry.status || entry.action}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {entry.note || "Status updated"}
+                            </p>
+                            <p className="text-[11px] text-gray-500 mt-1">
+                              By {entry.actorName || entry.actorRole || "System"}
+                            </p>
+                          </div>
+                          <p className="text-[11px] text-gray-500 shrink-0">
+                            {entry.timestamp ? new Date(entry.timestamp).toLocaleString() : "-"}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500">No timeline events recorded yet.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Delivery confirmation controls */}
+            {lifecycleStatusKey !== "DELIVERED" && lifecycleStatusKey !== "FLAGGED" && (
+              <div className="mb-4">
+                <h3 className="text-xs sm:text-sm font-medium text-gray-800 mb-2">
+                  Delivery Confirmation
+                </h3>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={handleGenerateQr}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm"
+                      disabled={isGeneratingQr}
+                    >
+                      <FiShield className="w-4 h-4" />
+                      Generate Secure QR
+                    </button>
+
+                    {(lifecycleStatusKey === "IN_PROCESS" || lifecycleStatusKey === "ACCEPTED") && (
+                      <button
+                        onClick={() => handleConfirmDelivery("button")}
+                        disabled={isSubmittingConfirmation}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs sm:text-sm disabled:opacity-60"
+                      >
+                        <FiCheckCircle className="w-4 h-4" />
+                        Confirm Delivered
+                      </button>
+                    )}
+                  </div>
+
+                  {(lifecycleStatusKey === "IN_PROCESS" || lifecycleStatusKey === "ACCEPTED") && (
+                    <div className="border border-dashed border-gray-300 rounded-lg p-2.5 bg-white">
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <button
+                          onClick={handleRequestOtp}
+                          className="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm"
+                        >
+                          Request OTP
+                        </button>
+                        <input
+                          type="text"
+                          value={otpInput}
+                          onChange={(event) => setOtpInput(event.target.value.replace(/[^0-9]/g, ""))}
+                          placeholder="Enter OTP"
+                          maxLength={6}
+                          className="px-2.5 py-1.5 rounded-lg border border-gray-300 text-xs sm:text-sm w-32"
+                        />
+                        <button
+                          onClick={() => handleConfirmDelivery("otp")}
+                          disabled={isSubmittingConfirmation}
+                          className="px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-900 text-white text-xs sm:text-sm disabled:opacity-60"
+                        >
+                          Confirm with OTP
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Digital Signature */}
             <div className="mt-6 pt-4 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
@@ -404,6 +617,17 @@ const PrescriptionDetail = () => {
             <FiShare2 className="mr-1" /> Share
           </button>
         </div>
+
+        <PrescriptionQRModal
+          isOpen={isQrModalOpen}
+          onClose={() => {
+            setIsQrModalOpen(false);
+            setQrPayload(null);
+          }}
+          onRegenerate={handleGenerateQr}
+          qrData={qrPayload}
+          isLoading={isGeneratingQr}
+        />
       </div>
   );
 };
