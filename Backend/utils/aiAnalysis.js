@@ -3,6 +3,13 @@ import vision from '@google-cloud/vision';
 import { GoogleGenAI } from '@google/genai';
 import fs from 'fs';
 import path from 'path';
+import {
+  startGuardedAIRequest,
+  assertAIExecutionAllowed,
+  finalizeGuardedAIRequest,
+  markGuardedAIRequestFailure,
+  isAIGuardrailError,
+} from '../services/assistant/aiGuardrail.service.js';
 
 // Initialize Google Cloud Vision client
 let visionClient = null;
@@ -215,7 +222,9 @@ export const cleanExtractedText = (rawText) => {
  * @param {string} extractedText - Cleaned extracted text from the report
  * @returns {Promise<Object>} - AI-generated analysis with sections
  */
-export const getGeminiAIAnalysis = async (extractedText) => {
+export const getGeminiAIAnalysis = async (extractedText, guardrailContext = {}) => {
+  let guardrailRequestId = null;
+
   try {
     console.log('[Gemini AI] Sending request to Gemini API for medical analysis...');
     
@@ -264,7 +273,27 @@ ${extractedText}
 
 Remember to keep all explanations simple and understandable for a non-medical person. Return ONLY valid JSON, no markdown or code blocks.`;
 
+    const guardrailRequest = await startGuardedAIRequest({
+      userId: guardrailContext.userId,
+      feature: guardrailContext.feature || 'report_analysis',
+      module: guardrailContext.module || 'report-analysis',
+      inputPrompt: userMessage,
+      sessionId: guardrailContext.sessionId || '',
+      metadata: {
+        reportId: guardrailContext.reportId || null,
+        mimeType: guardrailContext.mimeType || null,
+        extractedTextLength: extractedText?.length || 0,
+        source: 'medical-report-analysis',
+      },
+      model: 'gemini-3-flash-preview',
+    });
+
+    guardrailRequestId = guardrailRequest.requestId;
+
     console.log('[Gemini AI] Sending request with model: gemini-3-flash-preview');
+
+    // Guardrail control check before calling external AI.
+    assertAIExecutionAllowed(guardrailRequestId);
 
     // Use the newer Google Gemini API with gemini-3-flash-preview
     const response = await geminiClient.models.generateContent({
@@ -285,6 +314,9 @@ Remember to keep all explanations simple and understandable for a non-medical pe
       }
     });
 
+    // Guardrail control check after response returns from external AI.
+    assertAIExecutionAllowed(guardrailRequestId);
+
     console.log('[Gemini AI] Successfully received analysis from Gemini');
 
     // Extract the response content
@@ -296,45 +328,68 @@ Remember to keep all explanations simple and understandable for a non-medical pe
     
     const content = textContent;
     
-    // Try to parse JSON from the response
+    let parsedAnalysis = null;
+
     try {
       // Extract JSON from the response (might be wrapped in code blocks)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const analysisData = JSON.parse(jsonMatch[0]);
-        return analysisData;
+        parsedAnalysis = JSON.parse(jsonMatch[0]);
       }
-      
-      // If no JSON found, return as plain text
-      return {
-        summary: content,
-        keyFindings: [],
-        abnormalValues: [],
-        normalValues: [],
-        healthConcerns: [],
-        suggestions: [],
-        doctorConsultation: 'Consult your doctor for professional medical advice.',
-      };
     } catch (parseError) {
-      console.warn('[Gemini AI] Could not parse JSON response, returning as summary');
-      return {
-        summary: content,
-        keyFindings: [],
-        abnormalValues: [],
-        normalValues: [],
-        healthConcerns: [],
-        suggestions: [],
-        doctorConsultation: 'Consult your doctor for professional medical advice.',
-      };
+      console.warn('[Gemini AI] Could not parse JSON response from model output');
     }
+
+    const guardrailResult = await finalizeGuardedAIRequest({
+      requestId: guardrailRequestId,
+      rawResponse: response,
+      parsedResponse: parsedAnalysis,
+      metadataUpdate: {
+        responseLength: content?.length || 0,
+        parsedJson: Boolean(parsedAnalysis),
+      },
+    });
+
+    return {
+      analysis: parsedAnalysis,
+      guardrail: {
+        request_id: guardrailRequestId,
+        status: guardrailResult.status,
+        threats: guardrailResult.threats || [],
+      },
+    };
   } catch (error) {
+    if (isAIGuardrailError(error)) {
+      throw error;
+    }
+
     console.error('[Gemini AI] Error getting analysis from Gemini:', error.message);
     console.error('[Gemini AI] Error details:', error);
     console.error('[Gemini AI] Error stack:', error.stack);
+
+    if (guardrailRequestId) {
+      await markGuardedAIRequestFailure(guardrailRequestId, error);
+    }
     
     // Fallback: Provide basic analysis from extracted text
     console.log('[Gemini AI] Falling back to basic text analysis since Gemini API failed');
-    return provideFallbackAnalysis(extractedText);
+    return {
+      analysis: provideFallbackAnalysis(extractedText),
+      guardrail: {
+        request_id: guardrailRequestId,
+        status: 'BLOCKED',
+        threats: [
+          {
+            code: 'AI_UPSTREAM_FAILURE',
+            severity: 'medium',
+            reason: error.message,
+            source: 'upstream',
+            detectedAt: new Date(),
+          },
+        ],
+        fallbackUsed: true,
+      },
+    };
   }
 };
 
@@ -404,7 +459,7 @@ const provideFallbackAnalysis = (extractedText) => {
  * @param {string} mimeType - MIME type of the file
  * @returns {Promise<Object>} - Complete analysis result
  */
-export const analyzeMedicalReport = async (fileBuffer, mimeType) => {
+export const analyzeMedicalReport = async (fileBuffer, mimeType, guardrailContext = {}) => {
   try {
     console.log('[Analysis Pipeline] Starting complete medical report analysis...');
     
@@ -422,14 +477,18 @@ export const analyzeMedicalReport = async (fileBuffer, mimeType) => {
 
     // Step 3: Get AI analysis
     console.log('[Analysis Pipeline] Step 3/3: Getting AI explanation...');
-    const aiAnalysis = await getGrokAIAnalysis(cleanedText);
+    const aiResult = await getGrokAIAnalysis(cleanedText, {
+      ...guardrailContext,
+      mimeType,
+    });
 
     console.log('[Analysis Pipeline] Medical report analysis completed successfully');
 
     return {
       success: true,
       extractedText: cleanedText,
-      analysis: aiAnalysis,
+      analysis: aiResult.analysis,
+      guardrail: aiResult.guardrail,
       timestamp: new Date(),
     };
   } catch (error) {

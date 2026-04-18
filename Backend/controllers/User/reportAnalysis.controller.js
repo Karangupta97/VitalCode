@@ -1,6 +1,10 @@
 import { Report } from "../../models/User/report.model.js";
 import { getFileUrl, downloadFileFromS3 } from "../../services/s3.service.js";
 import { analyzeMedicalReport } from "../../utils/aiAnalysis.js";
+import {
+  isAIGuardrailError,
+  buildGuardrailErrorPayload,
+} from "../../services/assistant/aiGuardrail.service.js";
 
 /**
  * Analyze a medical report using OCR and AI
@@ -61,7 +65,13 @@ export const analyzeReport = async (req, res) => {
     console.log(`[Analysis] File downloaded (${fileBuffer.length} bytes), starting analysis...`);
 
     // Analyze the report (OCR + AI)
-    analysisResult = await analyzeMedicalReport(fileBuffer, report.contentType);
+    analysisResult = await analyzeMedicalReport(fileBuffer, report.contentType, {
+      userId,
+      feature: 'report_analysis',
+      module: 'report-analysis',
+      reportId: report._id,
+      sessionId: `${userId}:report-analysis`,
+    });
 
     console.log(`[Analysis] Analysis completed successfully for report ${reportId}`);
 
@@ -75,12 +85,23 @@ export const analyzeReport = async (req, res) => {
         reportId: report._id,
         reportName: report.originalFilename,
         analysis: analysisResult.analysis,
+        guardrail: analysisResult.guardrail,
         // Do not return raw extracted text for security
         timestamp: new Date(),
       },
     });
   } catch (error) {
     console.error('[Analysis] Error analyzing report:', error);
+
+    if (isAIGuardrailError(error)) {
+      return res.status(error.statusCode || 403).json({
+        success: false,
+        message:
+          error.message ||
+          'Suspicious AI activity detected. The AI is attempting an unauthorized operation.',
+        guardrail: buildGuardrailErrorPayload(error),
+      });
+    }
     
     // Determine error type and return appropriate response
     let statusCode = 500;

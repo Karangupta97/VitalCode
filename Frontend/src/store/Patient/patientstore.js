@@ -55,6 +55,10 @@ const usePatientStore = create((set, get) => ({
   sharedReports: [],
   sharedReportsLoading: false,
 
+  // AI guardrail state
+  aiGuardrailActivities: [],
+  aiGuardrailLoading: false,
+
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
@@ -906,6 +910,71 @@ const usePatientStore = create((set, get) => ({
     }
   },
 
+  // Fetch AI guardrail activities for current user/admin
+  fetchAIGuardrailActivities: async (token, params = {}) => {
+    try {
+      set({ aiGuardrailLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/ai-guardrail/activities", {
+        params,
+      });
+
+      set({
+        aiGuardrailActivities: response.data.activities || [],
+        aiGuardrailLoading: false,
+      });
+
+      return response.data;
+    } catch (error) {
+      set({
+        aiGuardrailLoading: false,
+        error: error.response?.data?.message || "Failed to fetch AI activities",
+      });
+      throw error;
+    }
+  },
+
+  // Stop AI execution immediately for a specific request
+  stopAIRequest: async (token, requestId, options = {}) => {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const response = await axios.post(
+      `/api/ai-guardrail/activities/${requestId}/stop`,
+      {
+        disableSession: Boolean(options.disableSession),
+        disableMinutes: options.disableMinutes || 15,
+        note: options.note || "",
+      }
+    );
+
+    return response.data;
+  },
+
+  // Allow a flagged AI response via user/admin override
+  allowAIOverride: async (token, requestId, note = "") => {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const response = await axios.post(
+      `/api/ai-guardrail/activities/${requestId}/allow`,
+      { note }
+    );
+
+    return response.data;
+  },
+
+  // Report suspicious AI behavior for review
+  reportAIThreat: async (token, requestId, note = "") => {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const response = await axios.post(
+      `/api/ai-guardrail/activities/${requestId}/report`,
+      { note }
+    );
+
+    return response.data;
+  },
+
   // Clear store data
   clearStore: () => {
     set({
@@ -921,6 +990,8 @@ const usePatientStore = create((set, get) => ({
       connectedDevicesError: null,
       sharedReports: [],
       sharedReportsLoading: false,
+      aiGuardrailActivities: [],
+      aiGuardrailLoading: false,
     });
   },
 

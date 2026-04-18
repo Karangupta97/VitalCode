@@ -653,6 +653,14 @@ const Reports = () => {
     analysis: null,
     loading: false,
   });
+  const [aiThreatModal, setAiThreatModal] = useState({
+    show: false,
+    report: null,
+    guardrail: null,
+    note: "",
+    disableSession: false,
+    actionLoading: false,
+  });
   const [emergencyFolderLoadingId, setEmergencyFolderLoadingId] =
     useState(null);
   const [shareModal, setShareModal] = useState({ show: false, preSelected: [] });
@@ -679,6 +687,9 @@ const Reports = () => {
     updateReport,
     refreshReportUrl,
     analyzeReport,
+    stopAIRequest,
+    allowAIOverride,
+    reportAIThreat,
     setReportEmergencyFolder,
   } = usePatientStore();
 
@@ -1081,6 +1092,37 @@ const Reports = () => {
       console.log("Starting report analysis for:", report._id);
       const result = await analyzeReport(token, report._id);
 
+      const guardrail = result?.guardrail || null;
+      const hasThreat =
+        guardrail &&
+        (guardrail.status === "FLAGGED" ||
+          (guardrail.status === "BLOCKED" &&
+            Array.isArray(guardrail.threats) &&
+            guardrail.threats.some((threat) => threat.code !== "AI_UPSTREAM_FAILURE")));
+
+      if (hasThreat) {
+        setAnalysisModal({
+          show: false,
+          report: null,
+          analysis: null,
+          loading: false,
+        });
+
+        setAiThreatModal({
+          show: true,
+          report,
+          guardrail,
+          note: "",
+          disableSession: false,
+          actionLoading: false,
+        });
+
+        toast.error(
+          "Suspicious AI activity detected. Review and choose Stop, Allow, or Report."
+        );
+        return;
+      }
+
       toast.success("Report analyzed successfully!");
 
       setAnalysisModal((prev) => ({
@@ -1092,6 +1134,35 @@ const Reports = () => {
       console.log("Analysis completed:", result);
     } catch (error) {
       console.error("Error analyzing report:", error);
+
+      const guardrail = error.response?.data?.guardrail || null;
+      const isThreat =
+        guardrail &&
+        (guardrail.status === "FLAGGED" || guardrail.status === "BLOCKED");
+
+      if (isThreat) {
+        setAnalysisModal({
+          show: false,
+          report: null,
+          analysis: null,
+          loading: false,
+        });
+
+        setAiThreatModal({
+          show: true,
+          report,
+          guardrail,
+          note: "",
+          disableSession: false,
+          actionLoading: false,
+        });
+
+        toast.error(
+          error.response?.data?.message ||
+            "Suspicious AI activity detected. The AI is attempting an unauthorized operation."
+        );
+        return;
+      }
       
       toast.error(
         error.response?.data?.message || 
@@ -1103,6 +1174,138 @@ const Reports = () => {
         ...prev,
         loading: false,
       }));
+    }
+  };
+
+  const parseOverrideAnalysis = (overrideResponse) => {
+    const releasedText =
+      overrideResponse?.released_text ||
+      overrideResponse?.activity?.response_text ||
+      "";
+
+    if (!releasedText) return null;
+
+    try {
+      const jsonMatch = String(releasedText).match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return null;
+      return JSON.parse(jsonMatch[0]);
+    } catch (error) {
+      console.warn("Could not parse overridden AI response JSON:", error);
+      return {
+        summary: releasedText,
+        keyFindings: [],
+        abnormalValues: [],
+        normalValues: [],
+        healthConcerns: [],
+        suggestions: [],
+        doctorConsultation: "Consult your doctor for professional medical advice.",
+      };
+    }
+  };
+
+  const handleStopAIThreatProcess = async () => {
+    const requestId =
+      aiThreatModal.guardrail?.request_id || aiThreatModal.guardrail?.requestId;
+    if (!requestId) {
+      toast.error("Request ID missing for AI stop action");
+      return;
+    }
+
+    try {
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: true }));
+
+      await stopAIRequest(token, requestId, {
+        disableSession: aiThreatModal.disableSession,
+        disableMinutes: 15,
+        note: aiThreatModal.note,
+      });
+
+      toast.success("AI process stopped successfully");
+      setAiThreatModal({
+        show: false,
+        report: null,
+        guardrail: null,
+        note: "",
+        disableSession: false,
+        actionLoading: false,
+      });
+    } catch (error) {
+      console.error("Failed to stop AI request:", error);
+      toast.error(error.response?.data?.message || "Failed to stop AI process");
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: false }));
+    }
+  };
+
+  const handleAllowAIThreatOverride = async () => {
+    const requestId =
+      aiThreatModal.guardrail?.request_id || aiThreatModal.guardrail?.requestId;
+    if (!requestId) {
+      toast.error("Request ID missing for AI override action");
+      return;
+    }
+
+    try {
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: true }));
+
+      const overrideResponse = await allowAIOverride(
+        token,
+        requestId,
+        aiThreatModal.note
+      );
+
+      const parsedAnalysis = parseOverrideAnalysis(overrideResponse);
+
+      if (parsedAnalysis) {
+        setAnalysisModal({
+          show: true,
+          report: aiThreatModal.report,
+          analysis: {
+            analysis: parsedAnalysis,
+            guardrail: {
+              ...(aiThreatModal.guardrail || {}),
+              status: "AUTHORIZED",
+              override_granted: true,
+            },
+          },
+          loading: false,
+        });
+      }
+
+      toast.success("AI override applied");
+      setAiThreatModal({
+        show: false,
+        report: null,
+        guardrail: null,
+        note: "",
+        disableSession: false,
+        actionLoading: false,
+      });
+    } catch (error) {
+      console.error("Failed to allow AI override:", error);
+      toast.error(error.response?.data?.message || "Failed to allow AI override");
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: false }));
+    }
+  };
+
+  const handleReportAIThreatIssue = async () => {
+    const requestId =
+      aiThreatModal.guardrail?.request_id || aiThreatModal.guardrail?.requestId;
+    if (!requestId) {
+      toast.error("Request ID missing for report action");
+      return;
+    }
+
+    try {
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: true }));
+
+      await reportAIThreat(token, requestId, aiThreatModal.note);
+
+      toast.success("AI issue reported. Our team will review it.");
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: false }));
+    } catch (error) {
+      console.error("Failed to report AI issue:", error);
+      toast.error(error.response?.data?.message || "Failed to report AI issue");
+      setAiThreatModal((prev) => ({ ...prev, actionLoading: false }));
     }
   };
 
@@ -3560,6 +3763,166 @@ const Reports = () => {
         loading={analysisModal.loading}
         onClose={() => setAnalysisModal({ show: false, report: null, analysis: null, loading: false })}
       />
+
+      {/* AI Threat Detection Modal */}
+      {aiThreatModal.show && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          onClick={(event) => {
+            if (event.target === event.currentTarget && !aiThreatModal.actionLoading) {
+              setAiThreatModal({
+                show: false,
+                report: null,
+                guardrail: null,
+                note: "",
+                disableSession: false,
+                actionLoading: false,
+              });
+            }
+          }}
+        >
+          <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm" />
+
+          <div className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-red-100 overflow-hidden">
+            <div className="px-6 sm:px-8 py-6 border-b border-red-100 bg-gradient-to-r from-red-50 via-amber-50 to-orange-50">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-red-700 bg-red-100 px-3 py-1 rounded-full">
+                    <FiAlertCircle className="w-4 h-4" />
+                    Threat Detected
+                  </p>
+                  <h3 className="mt-3 text-xl sm:text-2xl font-bold text-slate-900">
+                    Suspicious AI activity detected
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-600">
+                    The AI is attempting an unauthorized operation. Choose an action immediately.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-white/70"
+                  onClick={() => {
+                    if (aiThreatModal.actionLoading) return;
+                    setAiThreatModal({
+                      show: false,
+                      report: null,
+                      guardrail: null,
+                      note: "",
+                      disableSession: false,
+                      actionLoading: false,
+                    });
+                  }}
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 sm:px-8 py-6 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Request ID</p>
+                  <p className="text-slate-900 font-semibold break-all mt-1">
+                    {aiThreatModal.guardrail?.request_id ||
+                      aiThreatModal.guardrail?.requestId ||
+                      "Unavailable"}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Status</p>
+                  <p className="text-slate-900 font-semibold mt-1">
+                    {aiThreatModal.guardrail?.status || "FLAGGED"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-red-100 bg-red-50/60 p-4">
+                <p className="text-sm font-semibold text-red-800 mb-3">Detected anomalies</p>
+
+                {Array.isArray(aiThreatModal.guardrail?.threats) &&
+                aiThreatModal.guardrail.threats.length > 0 ? (
+                  <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    {aiThreatModal.guardrail.threats.map((threat, index) => (
+                      <div
+                        key={`${threat.code || "threat"}-${index}`}
+                        className="rounded-xl bg-white border border-red-100 px-3 py-2"
+                      >
+                        <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">
+                          {threat.code || "THREAT"}
+                        </p>
+                        <p className="text-sm text-slate-700 mt-1">
+                          {threat.reason || "Unexpected AI behavior detected."}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-700">
+                    Guardrail detected unauthorized behavior and blocked this response.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-slate-700">
+                  Notes (optional)
+                </label>
+                <textarea
+                  value={aiThreatModal.note}
+                  onChange={(event) =>
+                    setAiThreatModal((prev) => ({ ...prev, note: event.target.value }))
+                  }
+                  placeholder="Add context for your stop, allow, or report action"
+                  className="w-full min-h-[90px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200"
+                />
+
+                <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={aiThreatModal.disableSession}
+                    onChange={(event) =>
+                      setAiThreatModal((prev) => ({
+                        ...prev,
+                        disableSession: event.target.checked,
+                      }))
+                    }
+                    className="rounded border-slate-300 text-red-600 focus:ring-red-200"
+                  />
+                  Temporarily disable AI for this session (recommended after confirmed threat)
+                </label>
+              </div>
+            </div>
+
+            <div className="px-6 sm:px-8 py-5 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center gap-3 justify-end">
+              <button
+                type="button"
+                disabled={aiThreatModal.actionLoading}
+                onClick={handleReportAIThreatIssue}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-white disabled:opacity-60"
+              >
+                Report Issue
+              </button>
+              <button
+                type="button"
+                disabled={aiThreatModal.actionLoading}
+                onClick={handleAllowAIThreatOverride}
+                className="px-4 py-2.5 rounded-xl border border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100 disabled:opacity-60"
+              >
+                Allow Override
+              </button>
+              <button
+                type="button"
+                disabled={aiThreatModal.actionLoading}
+                onClick={handleStopAIThreatProcess}
+                className="px-4 py-2.5 rounded-xl bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {aiThreatModal.actionLoading ? "Processing..." : "Stop AI Process"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Share with Doctor Modal */}
       <ShareWithDoctorModal

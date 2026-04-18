@@ -31,6 +31,7 @@ import emergencyRoutes from "./routes/User/emergency.routes.js";
 import reportSharingRoutes from "./routes/User/reportSharing.routes.js";
 import familyVaultRoutes from "./routes/User/familyVault.routes.js";
 import paymentRoutes from "./routes/User/payment.routes.js";
+import aiGuardrailRoutes from "./routes/User/aiGuardrail.routes.js";
 
 // Define a simple logger
 const logger = {
@@ -155,6 +156,7 @@ async function startServer() {
   app.use("/api/report-sharing", reportSharingRoutes); // Patient report sharing with doctors
   app.use("/api/family-vault", familyVaultRoutes); // Family Vault management
   app.use("/api/payment", paymentRoutes); // Razorpay payment gateway
+  app.use("/api/ai-guardrail", aiGuardrailRoutes); // AI guardrail monitoring and control
 
   // Root route
   app.get("/", (req, res) => {
