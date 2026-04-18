@@ -13,7 +13,7 @@ const fadeUp = {
 };
 
 const mockHospitals = [
-  { id: 1, name: 'Medicare City Hospital', address: 'Sector 15, Gurugram, Haryana', phone: '+91 124 456 7890', email: 'admin@medicarecity.com', rating: 4.8, beds: 350, departments: ['Cardiology', 'Orthopedics', 'Neurology'], status: 'primary', timing: '24/7', distance: '2.3 km' },
+  { id: 1, name: 'HealthVault City Hospital', address: 'Sector 15, Gurugram, Haryana', phone: '+91 124 456 7890', email: 'admin@healthvaultcity.com', rating: 4.8, beds: 350, departments: ['Cardiology', 'Orthopedics', 'Neurology'], status: 'primary', timing: '24/7', distance: '2.3 km' },
   { id: 2, name: 'Apollo Health Center', address: 'MG Road, New Delhi', phone: '+91 11 2345 6789', email: 'info@apollohealth.com', rating: 4.6, beds: 500, departments: ['General Medicine', 'Pediatrics', 'Surgery'], status: 'affiliated', timing: '24/7', distance: '5.1 km' },
   { id: 3, name: 'Fortis Medical Institute', address: 'Vasant Kunj, New Delhi', phone: '+91 11 3456 7890', email: 'contact@fortismed.com', rating: 4.7, beds: 400, departments: ['ENT', 'Dermatology', 'Oncology'], status: 'affiliated', timing: '8AM - 10PM', distance: '8.4 km' },
   { id: 4, name: 'Max Super Speciality', address: 'Saket, New Delhi', phone: '+91 11 4567 8901', email: 'info@maxhealth.com', rating: 4.9, beds: 600, departments: ['Cardiology', 'Transplant', 'Oncology'], status: 'visiting', timing: '24/7', distance: '12.0 km' },
@@ -35,7 +35,7 @@ const DoctorHospitals = () => {
 
   return (
     <DoctorDashboardLayout pageTitle="Affiliated Hospitals">
-      <Helmet><title>Hospitals | Doctor Dashboard - Medicare</title></Helmet>
+      <Helmet><title>Hospitals | Doctor Dashboard - HealthVault</title></Helmet>
 
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Stats */}

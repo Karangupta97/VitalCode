@@ -49,7 +49,7 @@ const DoctorMedicalRecords = () => {
 
   return (
     <DoctorDashboardLayout pageTitle="Medical Records">
-      <Helmet><title>Medical Records | Doctor Dashboard - Medicare</title></Helmet>
+      <Helmet><title>Medical Records | Doctor Dashboard - HealthVault</title></Helmet>
 
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Stats */}

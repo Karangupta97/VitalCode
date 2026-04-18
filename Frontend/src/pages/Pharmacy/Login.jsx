@@ -61,7 +61,7 @@ const PharmacyLogin = () => {
   return (
     <>
       <Helmet>
-        <title>Pharmacy Login | VitalCode</title>
+        <title>Pharmacy Login | HealthVault</title>
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #ecfeff 45%, #f8fafc 100%)' }}>
@@ -72,7 +72,7 @@ const PharmacyLogin = () => {
             </div>
             <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginTop: 14 }}>Pharmacy Login</h1>
             <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>
-              Access your VitalCode pharmacy command center
+              Access your HealthVault pharmacy command center
             </p>
           </div>
 
@@ -174,6 +174,32 @@ const PharmacyLogin = () => {
             </form>
 
             <div className="mt-6 pt-5" style={{ borderTop: '1px solid #e2e8f0' }}>
+              <p style={{ color: '#64748b', fontSize: '0.78rem', textAlign: 'center', marginBottom: 8 }}>
+                Sign in as
+              </p>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <Link
+                  to="/login"
+                  className="rounded-lg py-2 text-center"
+                  style={{ border: '1px solid #cbd5e1', color: '#475569', fontSize: '0.74rem', fontWeight: 700 }}
+                >
+                  User
+                </Link>
+                <Link
+                  to="/doctor/login"
+                  className="rounded-lg py-2 text-center"
+                  style={{ border: '1px solid #cbd5e1', color: '#475569', fontSize: '0.74rem', fontWeight: 700 }}
+                >
+                  Doctor
+                </Link>
+                <div
+                  className="rounded-lg py-2 text-center"
+                  style={{ border: '1px solid #14b8a6', background: '#f0fdfa', color: '#0f766e', fontSize: '0.74rem', fontWeight: 700 }}
+                >
+                  Pharmacy
+                </div>
+              </div>
+
               <p style={{ color: '#64748b', fontSize: '0.8rem', textAlign: 'center' }}>
                 New pharmacy? <Link to="/pharmacy/register" style={{ color: '#0f766e', fontWeight: 700 }}>Register here</Link>
               </p>

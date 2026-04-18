@@ -81,7 +81,7 @@ const DoctorSignup = () => {
   return (
     <>
       <Helmet>
-        <title>Doctor Registration | Medicare</title>
+        <title>Doctor Registration | HealthVault</title>
       </Helmet>
       
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -96,7 +96,7 @@ const DoctorSignup = () => {
               Doctor Registration
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Join Medicare as a medical professional
+              Join HealthVault as a medical professional
             </p>
           </div>
 

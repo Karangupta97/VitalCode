@@ -177,7 +177,7 @@ const DoctorLogin = () => {
   return (
     <>
       <Helmet>
-        <title>Doctor Login | Medicare</title>
+        <title>Doctor Login | HealthVault</title>
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -283,6 +283,27 @@ const DoctorLogin = () => {
                     </div>
                   </div>
                 )}
+
+                    <div className="mt-6 pt-5 border-t border-gray-200">
+                      <p className="text-center text-xs text-gray-500 mb-3">Sign in as</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Link
+                          to="/login"
+                          className="rounded-md border border-gray-300 py-2 text-center text-xs font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                          User
+                        </Link>
+                        <div className="rounded-md border border-indigo-300 bg-indigo-50 py-2 text-center text-xs font-semibold text-indigo-700">
+                          Doctor
+                        </div>
+                        <Link
+                          to="/pharmacy/login"
+                          className="rounded-md border border-gray-300 py-2 text-center text-xs font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                          Pharmacy
+                        </Link>
+                      </div>
+                    </div>
 
                 <div>
                   <button

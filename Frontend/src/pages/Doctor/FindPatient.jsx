@@ -531,7 +531,7 @@ const DoctorFindPatient = () => {
         {/* Empty state */}
         {!patient && !error && !isSearching && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-gray-50 rounded-xl p-10 text-center border border-gray-100 mt-10">
-            <img src={handlogo} alt="Medicare Logo" className="w-20 h-20 mx-auto mb-6 opacity-80" />
+            <img src={handlogo} alt="HealthVault Logo" className="w-20 h-20 mx-auto mb-6 opacity-80" />
             <h3 className="text-xl font-medium text-gray-900 mb-2">Search for a Patient</h3>
             <p className="text-gray-500 max-w-md mx-auto mb-8">Enter a patient's UMID in the search box above to access their medical records and reports.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">

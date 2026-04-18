@@ -360,8 +360,8 @@ const DoctorDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Doctor Dashboard | Medicare</title>
-        <meta name="description" content="Medicare Doctor Dashboard — manage patients, appointments, and medical records." />
+        <title>Doctor Dashboard | HealthVault</title>
+        <meta name="description" content="HealthVault Doctor Dashboard — manage patients, appointments, and medical records." />
       </Helmet>
 
       <link

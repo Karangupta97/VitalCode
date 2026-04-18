@@ -117,7 +117,7 @@ const DoctorProfile = () => {
   return (
     <DoctorDashboardLayout pageTitle="Profile Settings">
       <Helmet>
-        <title>Profile | Doctor Dashboard - Medicare</title>
+        <title>Profile | Doctor Dashboard - HealthVault</title>
       </Helmet>
 
       <div className="max-w-5xl mx-auto space-y-6">

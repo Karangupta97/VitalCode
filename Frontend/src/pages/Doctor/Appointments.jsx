@@ -94,7 +94,7 @@ const DoctorAppointments = () => {
 
   return (
     <DoctorDashboardLayout pageTitle="Appointments">
-      <Helmet><title>Appointments | Doctor Dashboard - Medicare</title></Helmet>
+      <Helmet><title>Appointments | Doctor Dashboard - HealthVault</title></Helmet>
 
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Stats */}

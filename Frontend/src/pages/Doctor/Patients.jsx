@@ -46,7 +46,7 @@ const DoctorPatients = () => {
 
   return (
     <DoctorDashboardLayout pageTitle="My Patients">
-      <Helmet><title>Patients | Doctor Dashboard - Medicare</title></Helmet>
+      <Helmet><title>Patients | Doctor Dashboard - HealthVault</title></Helmet>
 
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Stats */}

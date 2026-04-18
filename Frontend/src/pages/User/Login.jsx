@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/Patient/authStore";
-import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook, FaStethoscope, FaHeartbeat, FaNotesMedical } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook, FaStethoscope, FaHeartbeat, FaNotesMedical, FaUser, FaIdCard } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import medicalIllustration from "@/assets/Login.png";
+import { aadhaarDB } from "../../utils/aadhaarMockData";
 
 const Login = () => {
+  const [aadharNumber, setAadharNumber] = useState("");
+  const [aadharError, setAadharError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +18,38 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!aadharNumber) {
+      setAadharError("Aadhaar number is required");
+      return;
+    }
+
+    if (aadharNumber.length !== 12) {
+      setAadharError("Aadhaar number must be 12 digits");
+      return;
+    }
+
+    const aadhaarRecord = aadhaarDB.find(
+      (entry) => entry.aadhaar_number === aadharNumber
+    );
+
+    if (!aadhaarRecord) {
+      setAadharError("Aadhaar number not found in records");
+      return;
+    }
+
+    if (aadhaarRecord.status !== "ACTIVE") {
+      setAadharError("Aadhaar is inactive. Please contact support");
+      return;
+    }
+
+    if (!aadhaarRecord.mobile_linked) {
+      setAadharError("Mobile number is not linked with this Aadhaar");
+      return;
+    }
+
+    setAadharError("");
+
     try {
       await login(email, password);
       if (rememberMe) {
@@ -139,7 +174,7 @@ const Login = () => {
               className="mb-8 sm:mb-16"
             >
               <h1 className="text-[32px] sm:text-[46px] font-bold text-[#2B3674] mb-4 tracking-tight">
-                Welcome to Medicare
+                Welcome to HealthVault
               </h1>
               <p className="text-[16px] sm:text-[19px] text-[#707EAE] leading-relaxed">
                 Your trusted healthcare portal. Please sign in to access your secure medical dashboard.
@@ -147,6 +182,37 @@ const Login = () => {
             </motion.div>
 
             <form onSubmit={handleLogin} className="space-y-6 sm:space-y-8">
+              {/* Aadhar Input */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="relative"
+              >
+                <FaIdCard className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
+                <input
+                  type="text"
+                  value={aadharNumber}
+                  onChange={(e) => {
+                    const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 12);
+                    setAadharNumber(onlyDigits);
+                    if (aadharError) {
+                      setAadharError("");
+                    }
+                  }}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={12}
+                  required
+                  className="w-full pl-12 sm:pl-14 pr-4 sm:pr-6 py-4 sm:py-5 text-[16px] sm:text-[17px] rounded-[12px] sm:rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
+                  placeholder="Enter 12-digit Aadhaar number"
+                  aria-label="Aadhaar card number"
+                />
+                {aadharError && (
+                  <p className="mt-2 text-[13px] text-red-600 font-medium">{aadharError}</p>
+                )}
+              </motion.div>
+
               {/* Email Input */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
@@ -256,6 +322,39 @@ const Login = () => {
                 )}
               </motion.button>
 
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.55 }}
+                className="pt-2"
+              >
+                <p className="text-[13px] sm:text-[14px] text-[#707EAE] mb-3 font-medium">
+                  Sign in as
+                </p>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <Link
+                    to="/doctor/login"
+                    className="group flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-[12px] border border-[#E2E8F0] bg-white hover:border-[#4318FF] hover:bg-[#F7F5FF] transition-all duration-300"
+                  >
+                    <FaUserMd className="text-[#707EAE] group-hover:text-[#4318FF] text-[16px]" />
+                    <span className="text-[11px] sm:text-[12px] font-semibold text-[#2B3674]">Doctor</span>
+                  </Link>
+
+                  <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-[12px] border border-[#4318FF] bg-[#F7F5FF]">
+                    <FaUser className="text-[#4318FF] text-[16px]" />
+                    <span className="text-[11px] sm:text-[12px] font-semibold text-[#2B3674]">User</span>
+                  </div>
+
+                  <Link
+                    to="/pharmacy/login"
+                    className="group flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-[12px] border border-[#E2E8F0] bg-white hover:border-[#4318FF] hover:bg-[#F7F5FF] transition-all duration-300"
+                  >
+                    <FaNotesMedical className="text-[#707EAE] group-hover:text-[#4318FF] text-[16px]" />
+                    <span className="text-[11px] sm:text-[12px] font-semibold text-[#2B3674]">Pharmacy</span>
+                  </Link>
+                </div>
+              </motion.div>
+
               {/* Social Login */}
               {/* <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
@@ -291,7 +390,7 @@ const Login = () => {
                 className="text-center pt-6 sm:pt-8"
               >
                 <p className="text-[14px] sm:text-[16px] text-[#707EAE]">
-                  New to Medicare?{" "}
+                  New to HealthVault?{" "}
                   <Link to="/signup" className="text-[#4318FF] hover:text-[#3311DB] font-medium transition-colors duration-300 hover:underline">
                     Create an Account
                   </Link>
@@ -316,7 +415,7 @@ const Login = () => {
                 <div className="bg-linear-to-b from-[#4318FF]/70 via-[#4318FF]/50 to-[#4318FF]/30 backdrop-blur-[2px] w-full h-full rounded-[40px]">
                   <div className="h-full flex flex-col justify-center px-12">
                     <h2 className="text-[42px] font-bold text-white text-center tracking-tight mb-8 drop-shadow-lg">
-                      Medicare Portal
+                      HealthVault Portal
                     </h2>
                     
                     {/* Features Grid */}
