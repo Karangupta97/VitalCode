@@ -64,7 +64,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F4F7FE] p-2 sm:p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F7FE] p-2 sm:p-4 relative overflow-x-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -161,10 +161,10 @@ const Login = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-[1400px] min-h-screen sm:min-h-0 sm:h-[900px] flex bg-white rounded-none sm:rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative z-10"
+        className="w-full max-w-[1400px] min-h-screen sm:min-h-0 sm:h-[95vh] sm:max-h-[900px] flex bg-white rounded-none sm:rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative z-10"
       >
         {/* Left Side - Login Form */}
-        <div className="w-full lg:w-[45%] p-6 sm:p-10 md:p-20">
+        <div className="w-full lg:w-[45%] p-6 sm:p-10 md:p-20 sm:overflow-y-auto">
           <div className="max-w-[460px] mx-auto">
             {/* Welcome Text */}
             <motion.div 

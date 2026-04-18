@@ -114,7 +114,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
     return <Navigate to="/pharmacy/login" replace />;
   }
 
-  const pharmacyName = pharmacy?.name || 'RxSecure Pharmacy';
+  const pharmacyName = pharmacy?.name || 'HealthVault Pharmacy';
   const firstName = pharmacyName.split(' ')[0] || 'Pharmacy';
   const initials = pharmacy?.initials || pharmacyName.slice(0, 2).toUpperCase();
   const isVerified = pharmacy?.isLicenseVerified !== false;
@@ -138,7 +138,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="truncate" style={{ color: '#2C3A4A', fontWeight: 800, fontSize: '0.98rem' }}>
-              RxSecure
+              HealthVault
             </p>
             <p className="truncate" style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: 500 }}>
               {firstName} Console

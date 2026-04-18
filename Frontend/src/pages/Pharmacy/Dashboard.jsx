@@ -138,7 +138,7 @@ const Dashboard = () => {
   return (
     <PharmacyDashboardLayout pageTitle="Pharmacy Dashboard">
       <Helmet>
-        <title>Pharmacy Dashboard | RxSecure</title>
+        <title>Pharmacy Dashboard | HealthVault</title>
       </Helmet>
 
       <div className="max-w-7xl mx-auto space-y-6">
@@ -160,7 +160,7 @@ const Dashboard = () => {
             </div>
 
             <h2 style={{ fontSize: 'clamp(1.4rem, 3.2vw, 2.1rem)', fontWeight: 800, color: '#fff', marginTop: 14, letterSpacing: '-0.02em' }}>
-              Good Morning, {pharmacy?.name || 'RxSecure Partner Pharmacy'}
+              Good Morning, {pharmacy?.name || 'HealthVault Partner Pharmacy'}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: '0.92rem', maxWidth: 760, marginTop: 8, lineHeight: 1.55 }}>
               Dispense verified prescriptions, manage your inventory, and fulfill clinic stock requests - all in one place.
