@@ -17,8 +17,11 @@ import HealthVaultLogo from "../../assets/Logo/Medicare logo 1.png"; // Import t
 } from "react-icons/fi";
 import { useAuthStore } from "../../store/Patient/authStore";
 import LogoutModal from "../User/LogoutModal";
+import GlobalLanguageSwitch from "../GlobalLanguageSwitch";
+import { useRxLanguage } from "../../utils/rxI18n";
 
 const HospitalDashboardLayout = ({ children }) => {
+  const { t } = useRxLanguage();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -62,13 +65,13 @@ const HospitalDashboardLayout = ({ children }) => {
   }, []);
 
   const menuItems = [
-    { icon: FiGrid, label: "Dashboard", path: "/hospital/dashboard" },
-    { icon: FiSearch, label: "Find Patient", path: "/hospital/find-patient" },
-    { icon: FiCamera, label: "Prescription Scanner", path: "/hospital/prescription-scanner" },
-    { icon: FiUser, label: "Profile", path: "/hospital/profile" },
-    { icon: FiSettings, label: "Settings", path: "/hospital/settings" },
-    { icon: FiHelpCircle, label: "Help", path: "/hospital/help" },
-    { icon: FiActivity, label: "Analytics", path: "/hospital/analytics" },
+    { icon: FiGrid, key: "nav.dashboard", fallback: "Dashboard", path: "/hospital/dashboard" },
+    { icon: FiSearch, key: "nav.findPatient", fallback: "Find Patient", path: "/hospital/find-patient" },
+    { icon: FiCamera, key: "nav.scanPrescription", fallback: "Prescription Scanner", path: "/hospital/prescription-scanner" },
+    { icon: FiUser, key: "nav.profile", fallback: "Profile", path: "/hospital/profile" },
+    { icon: FiSettings, key: "nav.settings", fallback: "Settings", path: "/hospital/settings" },
+    { icon: FiHelpCircle, key: "nav.help", fallback: "Help", path: "/hospital/help" },
+    { icon: FiActivity, key: "nav.analytics", fallback: "Analytics", path: "/hospital/analytics" },
   ];
 
   useEffect(() => {
@@ -226,19 +229,26 @@ const HospitalDashboardLayout = ({ children }) => {
                 ${location.pathname === item.path ? "bg-white/15 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               >
                 <item.icon className={`${isSidebarCollapsed ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6"}`} />
-                {!isSidebarCollapsed && <span className="text-xs xs:text-sm sm:text-base md:text-lg font-medium truncate">{item.label}</span>}
+                {!isSidebarCollapsed && (
+                  <span className="text-xs xs:text-sm sm:text-base md:text-lg font-medium truncate" data-i18n={item.key}>
+                    {t(item.key, item.fallback)}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
 
           {/* Footer Section - Optimized for small screens */}
           <div className="p-1 xs:p-2 mb-1 xs:mb-2">
+            <div className="mb-2 flex justify-center">
+              <GlobalLanguageSwitch className="px-3 py-1.5 text-[11px]" />
+            </div>
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-1.5 xs:px-2 py-1 xs:py-1.5 sm:py-2 text-xs xs:text-sm sm:text-base text-white bg-white/10 rounded-lg hover:bg-white/20 transition-colors mb-2`}
             >
               <FiMenu className={`${isSidebarCollapsed ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6"}`} />
-              {!isSidebarCollapsed && <span className="ml-1 xs:ml-2 truncate">Collapse</span>}
+              {!isSidebarCollapsed && <span className="ml-1 xs:ml-2 truncate" data-i18n="action.collapse">{t("action.collapse", "Collapse")}</span>}
             </button>
 
             {/* Logout Option - Optimized for small screens */}
@@ -247,7 +257,7 @@ const HospitalDashboardLayout = ({ children }) => {
               className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-1.5 xs:px-2 py-1 xs:py-1.5 sm:py-2 text-xs xs:text-sm sm:text-base text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors`}
             >
               <FiLogOut className={`${isSidebarCollapsed ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6"}`} />
-              {!isSidebarCollapsed && <span className="ml-1 xs:ml-2 truncate">Logout</span>}
+              {!isSidebarCollapsed && <span className="ml-1 xs:ml-2 truncate" data-i18n="nav.logout">{t("nav.logout", "Logout")}</span>}
             </button>
           </div>
         </div>

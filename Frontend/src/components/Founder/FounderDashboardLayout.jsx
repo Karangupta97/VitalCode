@@ -33,8 +33,11 @@ import Logo from "../../assets/Logo/textlogo.png";
 import { useFounderStore } from "../../store/founderStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { safeStorageAccess } from "../../utils/errorHandling";
+import GlobalLanguageSwitch from "../GlobalLanguageSwitch";
+import { useRxLanguage } from "../../utils/rxI18n";
 
 const FounderDashboardLayout = ({ children }) => {
+  const { t } = useRxLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -403,7 +406,7 @@ const FounderDashboardLayout = ({ children }) => {
                 <Moon size={20} className={`${collapsed ? "" : "mr-3"} text-indigo-600`} />
               )}
               {!collapsed && (
-                <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
+                <span>{isDarkMode ? t("action.lightMode", "Light Mode") : t("action.darkMode", "Dark Mode")}</span>
               )}
             </button>
             
@@ -415,7 +418,7 @@ const FounderDashboardLayout = ({ children }) => {
             >
               <LogOut size={20} className={`${collapsed ? "" : "mr-3"} text-red-500`} />
               {!collapsed && (
-                <span>Logout</span>
+                <span data-i18n="nav.logout">{t("nav.logout", "Logout")}</span>
               )}
             </button>
           </div>
@@ -436,12 +439,13 @@ const FounderDashboardLayout = ({ children }) => {
               </button>
               
               <h1 className="text-xl font-semibold text-gray-800 dark:text-white tracking-tight">
-                {navItems.flatMap(section => section.items).find(item => isActive(item.path))?.name || "Executive Dashboard"}
+                {navItems.flatMap(section => section.items).find(item => isActive(item.path))?.name || t("title.executiveDashboard", "Executive Dashboard")}
               </h1>
             </div>
             
             {/* Right side header controls */}
             <div className="flex items-center space-x-3">
+              <GlobalLanguageSwitch />
               <button className="relative w-9 h-9 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
                 <Bell size={20} />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>

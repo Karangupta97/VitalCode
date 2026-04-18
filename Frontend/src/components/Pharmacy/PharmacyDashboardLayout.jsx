@@ -17,6 +17,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { usePharmacyStore } from '../../store/pharmacyStore';
+import GlobalLanguageSwitch from '../GlobalLanguageSwitch';
+import { useRxLanguage } from '../../utils/rxI18n';
 
 const slideIn = {
   hidden: { x: -280, opacity: 0 },
@@ -25,13 +27,13 @@ const slideIn = {
 };
 
 const navItems = [
-  { label: 'Dashboard', icon: Home, path: '/pharmacy/dashboard' },
-  { label: 'Scan Prescription', icon: QrCode, path: '/pharmacy/scan-prescription' },
-  { label: 'Dispense History', icon: ClipboardList, path: '/pharmacy/dispense-history' },
-  { label: 'Stock & Inventory', icon: Package, path: '/pharmacy/inventory' },
-  { label: 'Doctor Requests', icon: Inbox, path: '/pharmacy/doctor-requests' },
-  { label: 'License & Profile', icon: ShieldCheck, path: '/pharmacy/license-profile' },
-  { label: 'Settings', icon: Settings, path: '/pharmacy/settings' },
+  { key: 'nav.dashboard', fallback: 'Dashboard', icon: Home, path: '/pharmacy/dashboard' },
+  { key: 'nav.scanPrescription', fallback: 'Scan Prescription', icon: QrCode, path: '/pharmacy/scan-prescription' },
+  { key: 'nav.dispenseHistory', fallback: 'Dispense History', icon: ClipboardList, path: '/pharmacy/dispense-history' },
+  { key: 'nav.stockInventory', fallback: 'Stock & Inventory', icon: Package, path: '/pharmacy/inventory' },
+  { key: 'nav.doctorRequests', fallback: 'Doctor Requests', icon: Inbox, path: '/pharmacy/doctor-requests' },
+  { key: 'nav.licenseProfile', fallback: 'License & Profile', icon: ShieldCheck, path: '/pharmacy/license-profile' },
+  { key: 'nav.settings', fallback: 'Settings', icon: Settings, path: '/pharmacy/settings' },
 ];
 
 const formatNotificationTime = (isoDate) => {
@@ -46,6 +48,7 @@ const formatNotificationTime = (isoDate) => {
 };
 
 const PharmacyDashboardLayout = ({ children, pageTitle }) => {
+  const { t, lang } = useRxLanguage();
   const {
     isAuthenticated,
     pharmacy,
@@ -119,7 +122,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
   const initials = pharmacy?.initials || pharmacyName.slice(0, 2).toUpperCase();
   const isVerified = pharmacy?.isLicenseVerified !== false;
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
+  const currentDate = new Date().toLocaleDateString(lang === 'mr' ? 'mr-IN' : lang === 'hi' ? 'hi-IN' : 'en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -141,7 +144,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
               HealthVault
             </p>
             <p className="truncate" style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: 500 }}>
-              {firstName} Console
+              {firstName} {t('pharmacy.consoleSuffix', 'Console')}
             </p>
           </div>
           <button
@@ -176,8 +179,11 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
               color: isVerified ? '#004A99' : '#A32D2D',
               letterSpacing: '0.01em',
             }}
+            data-i18n={isVerified ? 'status.licenseVerified' : 'status.pendingReview'}
           >
-            {isVerified ? 'Pharmacy Verified' : 'Verification Pending'}
+            {isVerified
+              ? t('status.licenseVerified', 'Pharmacy Verified')
+              : t('status.pendingReview', 'Verification Pending')}
           </span>
         </div>
       </div>
@@ -186,10 +192,11 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
+          const label = t(item.key, item.fallback);
 
           return (
             <Link
-              key={item.label}
+              key={item.path}
               to={item.path}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
               style={{
@@ -207,7 +214,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
               }}
             >
               <Icon style={{ width: 18, height: 18, flexShrink: 0 }} />
-              <span>{item.label}</span>
+              <span data-i18n={item.key}>{label}</span>
             </Link>
           );
         })}
@@ -232,7 +239,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
           }}
         >
           <LogOut style={{ width: 18, height: 18 }} />
-          <span>Logout</span>
+          <span data-i18n="nav.logout">{t('nav.logout', 'Logout')}</span>
         </button>
       </div>
     </div>
@@ -307,7 +314,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
                       letterSpacing: '-0.02em',
                     }}
                   >
-                    {pageTitle || 'Dashboard'}
+                    {pageTitle || t('nav.dashboard', 'Dashboard')}
                   </h1>
                   <p className="hidden sm:block" style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
                     {currentDate}
@@ -316,6 +323,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
               </div>
 
               <div className="flex items-center gap-2 sm:gap-3">
+                <GlobalLanguageSwitch />
                 <div className="relative">
                   <button
                     type="button"
@@ -369,7 +377,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
                               style={{ fontSize: '0.72rem', fontWeight: 600, color: '#0066CC' }}
                               onClick={markAllNotificationsAsRead}
                             >
-                              Mark all read
+                                {t('notif.markAllRead', 'Mark all read')}
                             </button>
                           )}
                         </div>
@@ -378,7 +386,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
                           {notifications.length === 0 && (
                             <div className="px-4 py-8 text-center">
                               <p style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: 500 }}>
-                                No notifications yet
+                                {t('notif.none', 'No notifications yet')}
                               </p>
                             </div>
                           )}
@@ -536,7 +544,7 @@ const PharmacyDashboardLayout = ({ children, pageTitle }) => {
                             }}
                           >
                             <LogOut style={{ width: 14, height: 14 }} />
-                            <span>Logout</span>
+                            <span data-i18n="nav.logout">{t('nav.logout', 'Logout')}</span>
                           </button>
                         </div>
                       </motion.div>

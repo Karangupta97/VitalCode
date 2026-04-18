@@ -20,6 +20,8 @@ import { FiLayout } from "react-icons/fi";
 import { useAuthStore } from "../store/Patient/authStore";
 import usePatientStore from "../store/Patient/patientstore";
 import LogoutModal from "./User/LogoutModal";
+import GlobalLanguageSwitch from "./GlobalLanguageSwitch";
+import { useRxLanguage } from "../utils/rxI18n";
 
 const ProfilePicture = React.memo(({ authUser, className }) => {
   const [imgError, setImgError] = useState(false);
@@ -67,6 +69,7 @@ const Navbar = ({ user, onLogout }) => {
   const { logout, refreshUserData, token, isAuthenticated } = useAuthStore();
   const { unreadNotificationsCount, fetchAllMedicalData } = usePatientStore();
   const authUser = useAuthStore((state) => state.user) || user;
+  const { t } = useRxLanguage();
 
   useEffect(() => {
     refreshUserData();
@@ -159,6 +162,7 @@ const Navbar = ({ user, onLogout }) => {
             </Link>
 
             <div className="flex items-center space-x-3">
+              <GlobalLanguageSwitch className="px-3 py-2 text-[11px]" />
               {authUser ? (
                 <div className="relative user-menu">
                   <button
@@ -192,7 +196,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiUser className="w-4 h-4 text-gray-500" />
-                          <span>Profile</span>
+                          <span data-i18n="nav.profile">{t("nav.profile", "Profile")}</span>
                         </Link>
                         <Link
                           to="/dashboard"
@@ -200,7 +204,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiHome className="w-4 h-4 text-gray-500" />
-                          <span>Dashboard</span>
+                          <span data-i18n="nav.dashboard">{t("nav.dashboard", "Dashboard")}</span>
                         </Link>
                         <Link
                           to="/settings"
@@ -208,7 +212,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiSettings className="w-4 h-4 text-gray-500" />
-                          <span>Settings</span>
+                          <span data-i18n="nav.settings">{t("nav.settings", "Settings")}</span>
                         </Link>
                         <Link
                           to="/notifications"
@@ -216,7 +220,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiBell className="w-4 h-4 text-gray-500" />
-                          <span>Notifications</span>
+                          <span data-i18n="nav.notifications">{t("nav.notifications", "Notifications")}</span>
                           {unreadNotificationsCount > 0 && (
                             <span className="ml-auto bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full font-medium">
                               {unreadNotificationsCount}
@@ -228,7 +232,7 @@ const Navbar = ({ user, onLogout }) => {
                           className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                           <FiLogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <span data-i18n="nav.logout">{t("nav.logout", "Logout")}</span>
                         </button>
                       </motion.div>
                     )}
@@ -239,7 +243,7 @@ const Navbar = ({ user, onLogout }) => {
                   to="/login"
                   className="px-5 py-2 bg-[#252A61] text-white rounded-full text-sm sm:text-base hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
                 >
-                  Login
+                  <span data-i18n="btn.login">{t("btn.login", "Login")}</span>
                 </Link>
               )}
             </div>
@@ -257,30 +261,31 @@ const Navbar = ({ user, onLogout }) => {
 
             <nav className="flex space-x-6 xl:space-x-8 text-base xl:text-lg font-[Montserrat Alternates] font-semibold">
               <Link to="/" className="nav-link">
-                Home
+                <span data-i18n="nav.home">{t("nav.home", "Home")}</span>
               </Link>
               {/* <Link to="/services" className="nav-link">
                 Services
               </Link> */}
               <Link to="/health-records" className="nav-link">
-                Health Records
+                <span data-i18n="nav.healthRecords">{t("nav.healthRecords", "Health Records")}</span>
               </Link>
               <Link to="/dashboard/upload" className="nav-link">
-                Upload Reports
+                <span data-i18n="nav.uploadReports">{t("nav.uploadReports", "Upload Reports")}</span>
               </Link>
               <Link to="/aboutus" className="nav-link">
-                About Us
+                <span data-i18n="nav.about">{t("nav.about", "About Us")}</span>
               </Link>
               <Link to="/pricing" className="nav-link">
-                Pricing
+                <span data-i18n="nav.pricing">{t("nav.pricing", "Pricing")}</span>
               </Link>
               <Link to="/dashboard" className="nav-link">
-                Dashboard
+                <span data-i18n="nav.dashboard">{t("nav.dashboard", "Dashboard")}</span>
               </Link>
             </nav>
 
             {authUser ? (
               <div className="flex items-center space-x-4">
+                <GlobalLanguageSwitch />
                 {/* Notification Bell */}
                 <Link
                   to="/dashboard/notifications"
@@ -329,7 +334,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiUser className="w-4 h-4 text-gray-500" />
-                          <span>Profile</span>
+                          <span data-i18n="nav.profile">{t("nav.profile", "Profile")}</span>
                         </Link>
                         <Link
                           to="/dashboard"
@@ -337,7 +342,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiHome className="w-4 h-4 text-gray-500" />
-                          <span>Dashboard</span>
+                          <span data-i18n="nav.dashboard">{t("nav.dashboard", "Dashboard")}</span>
                         </Link>
                         <Link
                           to="/dashboard/notifications"
@@ -345,7 +350,7 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiBell className="w-4 h-4 text-gray-500" />
-                          <span>Notifications</span>
+                          <span data-i18n="nav.notifications">{t("nav.notifications", "Notifications")}</span>
                           {unreadNotificationsCount > 0 && (
                             <span className="ml-auto bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full font-medium">
                               {unreadNotificationsCount}
@@ -358,14 +363,14 @@ const Navbar = ({ user, onLogout }) => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiSettings className="w-4 h-4 text-gray-500" />
-                          <span>Settings</span>
+                          <span data-i18n="nav.settings">{t("nav.settings", "Settings")}</span>
                         </Link>
                         <button
                           onClick={handleLogoutClick}
                           className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50"
                         >
                           <FiLogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <span data-i18n="nav.logout">{t("nav.logout", "Logout")}</span>
                         </button>
                       </motion.div>
                     )}
@@ -373,12 +378,15 @@ const Navbar = ({ user, onLogout }) => {
                 </div>
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="px-8 py-3 bg-[#252A61] text-white rounded-full text-lg hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
-              >
-                Login
-              </Link>
+              <div className="flex items-center space-x-3">
+                <GlobalLanguageSwitch />
+                <Link
+                  to="/login"
+                  className="px-8 py-3 bg-[#252A61] text-white rounded-full text-lg hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
+                >
+                  <span data-i18n="btn.login">{t("btn.login", "Login")}</span>
+                </Link>
+              </div>
             )}
           </div>
 
@@ -425,25 +433,25 @@ const Navbar = ({ user, onLogout }) => {
 
                   <nav className="p-4 space-y-2">
                     <Link to="/" className="mobile-nav-link">
-                      Home
+                      <span data-i18n="nav.home">{t("nav.home", "Home")}</span>
                     </Link>
                     <Link to="/services" className="mobile-nav-link">
-                      Services
+                      <span data-i18n="nav.services">{t("nav.services", "Services")}</span>
                     </Link>
                     <Link to="/health-records" className="mobile-nav-link">
-                      Health Records
+                      <span data-i18n="nav.healthRecords">{t("nav.healthRecords", "Health Records")}</span>
                     </Link>
                     <Link to="/dashboard/upload" className="mobile-nav-link">
-                      Upload Reports
+                      <span data-i18n="nav.uploadReports">{t("nav.uploadReports", "Upload Reports")}</span>
                     </Link>
                     <Link to="/aboutus" className="mobile-nav-link">
-                      About Us
+                      <span data-i18n="nav.about">{t("nav.about", "About Us")}</span>
                     </Link>
                     <Link to="/pricing" className="mobile-nav-link">
-                      Pricing
+                      <span data-i18n="nav.pricing">{t("nav.pricing", "Pricing")}</span>
                     </Link>
                     <Link to="/profile" className="mobile-nav-link">
-                      Profile
+                      <span data-i18n="nav.profile">{t("nav.profile", "Profile")}</span>
                     </Link>
                   </nav>
                 </motion.div>
@@ -486,7 +494,7 @@ const Navbar = ({ user, onLogout }) => {
                   : "opacity-70 group-hover:opacity-100"
                   }`}
               >
-                Home
+                <span data-i18n="nav.home">{t("nav.home", "Home")}</span>
               </span>
             </Link>
 
@@ -520,7 +528,7 @@ const Navbar = ({ user, onLogout }) => {
                   : "opacity-70 group-hover:opacity-100"
                   }`}
               >
-                Records
+                <span data-i18n="nav.records">{t("nav.records", "Records")}</span>
               </span>
             </Link>
 
@@ -542,7 +550,7 @@ const Navbar = ({ user, onLogout }) => {
                   : "text-gray-500 group-hover:text-[#252A61]"
                   }`}
               >
-                Upload
+                <span data-i18n="nav.upload">{t("nav.upload", "Upload")}</span>
               </span>
             </Link>
 
@@ -576,7 +584,7 @@ const Navbar = ({ user, onLogout }) => {
                   : "opacity-70 group-hover:opacity-100"
                   }`}
               >
-                About
+                <span data-i18n="nav.about">{t("nav.about", "About Us")}</span>
               </span>
             </Link>
 
@@ -610,7 +618,7 @@ const Navbar = ({ user, onLogout }) => {
                   : "opacity-70 group-hover:opacity-100"
                   }`}
               >
-                Dashboard
+                <span data-i18n="nav.dashboard">{t("nav.dashboard", "Dashboard")}</span>
               </span>
             </Link>
           </nav>

@@ -8,8 +8,11 @@ import {
   authenticateDoctorBiometric,
   isDoctorBiometricSupported,
 } from '../../utils/doctorBiometric';
+import { useRxLanguage } from '../../utils/rxI18n';
+import GlobalLanguageSwitch from '../../components/GlobalLanguageSwitch';
 
 const DoctorLogin = () => {
+  const { t } = useRxLanguage();
   const navigate = useNavigate();
   const {
     initiateDoctorLogin,
@@ -177,21 +180,24 @@ const DoctorLogin = () => {
   return (
     <>
       <Helmet>
-        <title>Doctor Login | HealthVault</title>
+        <title>{`${t('auth.doctorLogin', 'Doctor Login')} | Medicare`}</title>
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="fixed top-4 right-4 z-20">
+          <GlobalLanguageSwitch />
+        </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
             <div className="h-20 w-20 rounded-full bg-indigo-600 flex items-center justify-center">
               <FaUser className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Doctor Login
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900" data-i18n="auth.doctorLogin">
+            {t('auth.doctorLogin', 'Doctor Login')}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Secure access with fingerprint + email fallback OTP
+          <p className="mt-2 text-center text-sm text-gray-600" data-i18n="auth.secureAccess">
+            {t('auth.secureAccess', 'Secure access with fingerprint + email fallback OTP')}
           </p>
         </div>
 
@@ -200,8 +206,8 @@ const DoctorLogin = () => {
             {verificationStage === 'credentials' ? (
               <form className="space-y-6" onSubmit={handleCredentialSubmit}>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email address
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700" data-i18n="label.emailAddress">
+                    {t('label.emailAddress', 'Email address')}
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -226,8 +232,8 @@ const DoctorLogin = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Password
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700" data-i18n="label.password">
+                    {t('label.password', 'Password')}
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -277,33 +283,12 @@ const DoctorLogin = () => {
                   <div className="rounded-md bg-red-50 p-4">
                     <div className="flex">
                       <div className="ml-3">
-                        <h3 className="text-sm font-medium text-red-800">Login Error</h3>
+                        <h3 className="text-sm font-medium text-red-800" data-i18n="auth.loginError">{t('auth.loginError', 'Login Error')}</h3>
                         <p className="text-sm text-red-700 mt-2">{error}</p>
                       </div>
                     </div>
                   </div>
                 )}
-
-                    <div className="mt-6 pt-5 border-t border-gray-200">
-                      <p className="text-center text-xs text-gray-500 mb-3">Sign in as</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Link
-                          to="/login"
-                          className="rounded-md border border-gray-300 py-2 text-center text-xs font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                          User
-                        </Link>
-                        <div className="rounded-md border border-indigo-300 bg-indigo-50 py-2 text-center text-xs font-semibold text-indigo-700">
-                          Doctor
-                        </div>
-                        <Link
-                          to="/pharmacy/login"
-                          className="rounded-md border border-gray-300 py-2 text-center text-xs font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                          Pharmacy
-                        </Link>
-                      </div>
-                    </div>
 
                 <div>
                   <button
@@ -311,7 +296,9 @@ const DoctorLogin = () => {
                     disabled={isLoading || isBiometricProcessing}
                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading || isBiometricProcessing ? 'Processing secure login...' : 'Continue Secure Sign In'}
+                    {isLoading || isBiometricProcessing
+                      ? t('auth.processingSecureLogin', 'Processing secure login...')
+                      : t('auth.continueSecureSignIn', 'Continue Secure Sign In')}
                   </button>
                 </div>
               </form>

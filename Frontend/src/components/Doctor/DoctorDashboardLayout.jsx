@@ -17,6 +17,8 @@ import {
   FiShield,
   FiLayers,
 } from 'react-icons/fi';
+import GlobalLanguageSwitch from '../GlobalLanguageSwitch';
+import { useRxLanguage } from '../../utils/rxI18n';
 
 // ─── Animation Variants ──────────────────────────────────────────────────────
 
@@ -29,21 +31,22 @@ const slideIn = {
 // ─── Sidebar Navigation Items ────────────────────────────────────────────────
 
 const navItems = [
-  { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
-  { label: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
-  { label: 'Emergency Folder', icon: FiShield, path: '/doctor/emergency-folder' },
-  { label: 'Shared Reports', icon: FiLayers, path: '/doctor/shared-reports' },
-  { label: 'Patients', icon: FiUsers, path: '/doctor/patients' },
-  { label: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
-  { label: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },
-  { label: 'Affiliated Hospitals', icon: FiMapPin, path: '/doctor/hospitals' },
-  { label: 'Profile Settings', icon: FiSettings, path: '/doctor/profile' },
+  { key: 'nav.dashboard', fallback: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
+  { key: 'nav.findPatient', fallback: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
+  { key: 'nav.emergencyFolder', fallback: 'Emergency Folder', icon: FiShield, path: '/doctor/emergency-folder' },
+  { key: 'nav.sharedReports', fallback: 'Shared Reports', icon: FiLayers, path: '/doctor/shared-reports' },
+  { key: 'nav.patients', fallback: 'Patients', icon: FiUsers, path: '/doctor/patients' },
+  { key: 'nav.appointments', fallback: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
+  { key: 'nav.medicalRecords', fallback: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },
+  { key: 'nav.hospitals', fallback: 'Affiliated Hospitals', icon: FiMapPin, path: '/doctor/hospitals' },
+  { key: 'nav.profileSettings', fallback: 'Profile Settings', icon: FiSettings, path: '/doctor/profile' },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const DoctorDashboardLayout = ({ children, pageTitle }) => {
   const { isAuthenticated, doctor, getDoctorProfile, logoutDoctor, isLoading } = useDoctorStore();
+  const { t, lang } = useRxLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -89,12 +92,12 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
     return <Navigate to="/doctor/login" />;
   }
 
-  const firstName = doctor?.fullName?.split(' ')[0] || 'Doctor';
+  const firstName = doctor?.fullName?.split(' ')[0] || t('role.doctor', 'Doctor');
   const avatarUrl =
     doctor?.photoURL ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor?.fullName || 'Doctor')}&background=6366f1&color=fff&bold=true&size=128`;
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
+  const currentDate = new Date().toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -127,7 +130,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
             className="truncate"
             style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}
           >
-            {doctor?.specialization || 'Physician'}
+            {doctor?.specialization || t('role.doctor', 'Doctor')}
           </p>
         </div>
         {/* Close button on mobile */}
@@ -145,9 +148,10 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
+          const label = t(item.key, item.fallback);
           return (
             <Link
-              key={item.label}
+              key={item.path}
               to={item.path}
               onClick={() => setSidebarOpen(false)}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
@@ -166,7 +170,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
               }}
             >
               <Icon style={{ fontSize: '1.1rem', flexShrink: 0 }} />
-              <span>{item.label}</span>
+              <span data-i18n={item.key}>{label}</span>
             </Link>
           );
         })}
@@ -188,7 +192,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
           onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(244,63,94,0.1)')}
         >
           <FiLogOut style={{ fontSize: '1.1rem' }} />
-          <span>Logout</span>
+          <span data-i18n="nav.logout">{t('nav.logout', 'Logout')}</span>
         </button>
       </div>
     </div>
@@ -260,7 +264,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
                 </button>
                 <div>
                   <h1 style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
-                    {pageTitle || 'Dashboard'}
+                    {pageTitle || t('nav.dashboard', 'Dashboard')}
                   </h1>
                   <p className="hidden sm:block" style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
                     {currentDate}
@@ -270,6 +274,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
 
               {/* Right: profile + logout */}
               <div className="flex items-center gap-2 sm:gap-3">
+                <GlobalLanguageSwitch />
                 <div className="hidden sm:flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                   <img
                     src={avatarUrl}
@@ -282,7 +287,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
                       Dr. {firstName}
                     </p>
                     <p style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>
-                      {doctor?.specialization || 'Physician'}
+                      {doctor?.specialization || t('role.doctor', 'Doctor')}
                     </p>
                   </div>
                 </div>
@@ -300,7 +305,7 @@ const DoctorDashboardLayout = ({ children, pageTitle }) => {
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
                 >
                   <FiLogOut style={{ fontSize: '0.9rem' }} />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline" data-i18n="nav.logout">{t('nav.logout', 'Logout')}</span>
                 </button>
               </div>
             </div>

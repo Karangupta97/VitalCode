@@ -33,6 +33,7 @@ import {
 import useAuthStore from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
 import LogoutModal from "../../components/User/LogoutModal";
+import GlobalLanguageSwitch from "../../components/GlobalLanguageSwitch";
 
 // eslint workaround: some eslint configs don't treat `motion.div` as a usage of `motion`
 const _motion = motion;
@@ -1037,6 +1038,7 @@ const DashboardLayout = () => {
 
               {/* Right Section - Ultra Modern Action Items */}
               <div className="flex items-center space-x-1 sm:space-x-1.5 lg:space-x-2">
+                <GlobalLanguageSwitch className="hidden sm:inline-flex" />
                 {/* Mobile & Tablet Search Button */}
                 <div className="lg:hidden relative">
                   <AnimatePresence mode="wait">
