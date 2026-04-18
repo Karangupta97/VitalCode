@@ -18,7 +18,7 @@ import {
   FiGlobe,
 } from "react-icons/fi";
 import { useAuthStore } from "../store/Patient/authStore";
-import MedicareLogo from "../assets/Logo/Medicare logo.png";
+import HealthVaultLogo from "../assets/Logo/Medicare logo.png";
 import NurseImage from "../assets/nurse.png";
 
 // Stats data
@@ -32,19 +32,19 @@ import NurseImage from "../assets/nurse.png";
 // FAQ data
 const faqs = [
   {
-    question: "How secure is my medical data on Medicare?",
+    question: "How secure is my medical data on HealthVault?",
     answer: 
-      "Medicare employs bank-level encryption to ensure your medical data is completely secure. We implement advanced security measures including end-to-end encryption, regular security audits, and strict access controls.",
+      "HealthVault employs bank-level encryption to ensure your medical data is completely secure. We implement advanced security measures including end-to-end encryption, regular security audits, and strict access controls.",
   },
   {
     question: "Can I share my medical records with my doctor?",
     answer:
-      "Yes, Medicare makes it easy to share your medical records with healthcare providers. You can grant temporary or permanent access to specific doctors or healthcare facilities, and revoke access at any time.",
+      "Yes, HealthVault makes it easy to share your medical records with healthcare providers. You can grant temporary or permanent access to specific doctors or healthcare facilities, and revoke access at any time.",
   },
   {
-    question: "Is Medicare available on mobile devices?",
+    question: "Is HealthVault available on mobile devices?",
     answer:
-      "Medicare is fully responsive and works perfectly on any mobile device. We also offer dedicated mobile apps for iOS and Android that provide additional features like offline access and push notifications.",
+      "HealthVault is fully responsive and works perfectly on any mobile device. We also offer dedicated mobile apps for iOS and Android that provide additional features like offline access and push notifications.",
   },
   {
     question: "How do I upload my existing medical reports?",
@@ -101,7 +101,7 @@ const About = () => {
                 </span>
               </h1>
               <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                At Medicare, we're on a mission to transform healthcare through
+                At HealthVault, we're on a mission to transform healthcare through
                 technology, placing patients at the center of their medical
                 journey with security, transparency, and ease of access.
               </p>
@@ -111,7 +111,7 @@ const About = () => {
                   to="/signup"
                   className="px-8 py-3.5 bg-[#252A61] text-white rounded-full text-lg font-medium hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 flex items-center"
                 >
-                  Join Medicare
+                  Join HealthVault
                   <FiArrowRight className="ml-2" />
                 </Link>
                 <Link
@@ -220,7 +220,7 @@ const About = () => {
                   Our Mission
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                  At Medicare, we're dedicated to revolutionizing healthcare
+                  At HealthVault, we're dedicated to revolutionizing healthcare
                   management by providing a seamless, secure, and user-friendly
                   platform for managing medical records and healthcare services.
                   We believe that everyone deserves access to efficient,
@@ -306,7 +306,7 @@ const About = () => {
             </h2>
             <div className="w-24 h-1 bg-[#252A61] mx-auto mt-4 mb-6 rounded-full"></div>
             <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400">
-              The principles that guide everything we do at Medicare
+              The principles that guide everything we do at HealthVault
             </p>
           </motion.div>
 
@@ -382,7 +382,7 @@ const About = () => {
             </h2>
             <div className="w-24 h-1 bg-[#252A61] mx-auto mt-4 mb-6 rounded-full"></div>
             <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400">
-              Common questions about Medicare and our services
+              Common questions about HealthVault and our services
             </p>
           </motion.div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import usericon from "../../assets/user.png";
-import MedicareLogo from "../../assets/Logo/Medicare logo 1.png"; // Import the Medicare logo
+import HealthVaultLogo from "../../assets/Logo/Medicare logo 1.png"; // Import the HealthVault logo
   import HandLogo from "../../assets/Logo/hand logo.png"; // Import the hand logo
   import {
   FiGrid,
@@ -140,8 +140,8 @@ const HospitalDashboardLayout = ({ children }) => {
       <div className="w-full md:w-64 h-auto md:h-full bg-primary text-white flex flex-col">
         {/* Ensure the sidebar fits within the viewport for mobile devices */}
         <div className="flex flex-col items-center justify-center py-4">
-          <img src="/logo.png" alt="Medicare Logo" className="w-16 h-16" />
-          <h1 className="text-lg font-bold mt-2">Medicare</h1>
+          <img src="/logo.png" alt="HealthVault Logo" className="w-16 h-16" />
+          <h1 className="text-lg font-bold mt-2">HealthVault</h1>
         </div>
         <nav className="flex flex-col space-y-2 px-4">
           {/* Add navigation links */}
@@ -172,8 +172,8 @@ const HospitalDashboardLayout = ({ children }) => {
             {!isSidebarCollapsed && (
               <Link to="/" className="flex items-center justify-center">
                 <img 
-                  src={MedicareLogo} 
-                  alt="Medicare Logo" 
+                  src={HealthVaultLogo} 
+                  alt="HealthVault Logo" 
                   className="w-24 xs:w-28 sm:w-32 h-auto" 
                 />
               </Link>
@@ -186,7 +186,7 @@ const HospitalDashboardLayout = ({ children }) => {
                 <Link to="/" className="hidden lg:flex items-center justify-center">
                   <img 
                     src={HandLogo} 
-                    alt="Medicare Hand Logo" 
+                    alt="HealthVault Hand Logo" 
                     className="w-10 h-10 object-contain" 
                   />
                 </Link>

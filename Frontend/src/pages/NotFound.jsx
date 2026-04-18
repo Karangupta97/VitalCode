@@ -363,7 +363,7 @@ const NotFound = () => {
           <span className="absolute inset-0 w-full h-full bg-linear-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity"></span>
           <span className="absolute -inset-full w-[300%] h-full bg-linear-to-r from-transparent via-white to-transparent opacity-20 group-hover:animate-shimmer"></span>
           <FaHome className="mr-2 group-hover:scale-110 transition-transform duration-300" />
-          <span className="relative z-10">Return to Medicare Home</span>
+          <span className="relative z-10">Return to HealthVault Home</span>
           <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none blur-md" style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(79, 70, 229, 0.5) 70%, transparent 100%)' }}></div>
         </Link>
       </div>

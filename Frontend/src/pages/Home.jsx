@@ -162,10 +162,10 @@ const Home = () => {
     <div className="font-['Satoshi']">
       <Helmet>
         <html lang="en" />
-        <title>Medicare</title>
+        <title>HealthVault</title>
         <meta
           name="description"
-          content="Medicare is a secure healthcare platform connecting patients, doctors, and hospitals. Access medical records, find hospitals, and manage your healthcare journey efficiently."
+          content="HealthVault is a secure healthcare platform connecting patients, doctors, and hospitals. Access medical records, find hospitals, and manage your healthcare journey efficiently."
         />
         <meta
           name="keywords"
@@ -175,24 +175,24 @@ const Home = () => {
         {/* Open Graph tags for social sharing */}
         <meta
           property="og:title"
-          content="Medicare - Healthcare Management Platform"
+          content="HealthVault - Healthcare Management Platform"
         />
         <meta
           property="og:description"
           content="Access your medical records, find hospitals, and manage your healthcare journey with our secure platform."
         />
         <meta property="og:image" content={Logo} />
-        <meta property="og:url" content="https://www.medicares.in" />
+        <meta property="og:url" content="https://www.healthvault.in" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Medicare" />
+        <meta property="og:site_name" content="HealthVault" />
 
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@Medicares_india" />
-        <meta name="twitter:creator" content="@Medicares_india" />
+        <meta name="twitter:site" content="@HealthVaults_india" />
+        <meta name="twitter:creator" content="@HealthVaults_india" />
         <meta
           name="twitter:title"
-          content="Medicare - Healthcare Management Platform"
+          content="HealthVault - Healthcare Management Platform"
         />
         <meta
           name="twitter:description"
@@ -205,16 +205,16 @@ const Home = () => {
           name="robots"
           content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
         />
-        <meta name="author" content="Medicare" />
+        <meta name="author" content="HealthVault" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="canonical" href="https://medicares.in" />
+        <link rel="canonical" href="https://healthvault.in" />
 
         {/* Additional meta tags for better SEO */}
-        <meta name="application-name" content="Medicare" />
+        <meta name="application-name" content="HealthVault" />
         <meta name="theme-color" content="#252A61" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Medicare" />
+        <meta name="apple-mobile-web-app-title" content="HealthVault" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
 
@@ -223,19 +223,19 @@ const Home = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "Medicare",
+            name: "HealthVault",
             description:
               "A secure healthcare platform that connects patients, doctors, and hospitals, providing instant access to medical records and expert care.",
-            url: "https://medicares.in",
+            url: "https://healthvault.in",
             logo: Logo,
             sameAs: [
-              "https://twitter.com/Medicares_india",
-              "https://instagram.com/medicaresindia",
+              "https://twitter.com/HealthVaults_india",
+              "https://instagram.com/healthvaultindia",
             ],
             contactPoint: {
               "@type": "ContactPoint",
               telephone: "",
-              email: "support@medicares.in",
+              email: "support@healthvault.in",
               contactType: "customer service",
               availableLanguage: ["English", "Hindi"],
             },
@@ -249,12 +249,12 @@ const Home = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebSite",
-            name: "Medicare",
-            url: "https://medicares.in",
+            name: "HealthVault",
+            url: "https://healthvault.in",
             potentialAction: {
               "@type": "SearchAction",
               target:
-                "https://medicares.in/find-hospital?q={search_term_string}",
+                "https://healthvault.in/find-hospital?q={search_term_string}",
               "query-input": "required name=search_term_string",
             },
           })}
@@ -263,9 +263,9 @@ const Home = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "HealthAndBeautyBusiness",
-            name: "Medicare Platform",
+            name: "HealthVault Platform",
             image: Logo,
-            url: "https://medicares.in",
+            url: "https://healthvault.in",
             description:
               "A comprehensive healthcare management platform providing digital health records and hospital finding services.",
             priceRange: "Free",
@@ -292,7 +292,7 @@ const Home = () => {
                 name: "Dr. Rajesh Sharma",
               },
               reviewBody:
-                "Being a doctor in one of Delhi's busiest hospitals, Medicare has helped me access patient records efficiently. The platform is reliable and user-friendly even during peak hours.",
+                "Being a doctor in one of Delhi's busiest hospitals, HealthVault has helped me access patient records efficiently. The platform is reliable and user-friendly even during peak hours.",
             },
           })}
         </script>
@@ -343,12 +343,12 @@ const Home = () => {
                         <div className="bg-white/15 backdrop-blur-xl p-3 rounded-2xl shadow-lg border border-white/10 hover:border-white/20 transition-all duration-300">
                           <img
                             src={Logo}
-                            alt="Medicare Logo"
+                            alt="HealthVault Logo"
                             className="h-12 w-12 object-contain"
                           />
                         </div>
                         <h3 className="text-white/90 pl-5 text-2xl font-medium tracking-wide">
-                          Medicare
+                          HealthVault
                         </h3>
                       </motion.div>
 
@@ -551,12 +551,12 @@ const Home = () => {
                     <div className="bg-white/10 backdrop-blur-md p-1.5 rounded-lg shadow-lg">
                       <img
                         src={Logo}
-                        alt="Medicare Logo"
+                        alt="HealthVault Logo"
                         className="h-6 w-6 object-contain"
                       />
                     </div>
                     <h3 className="text-white pl-2 text-base font-semibold">
-                      Medicare
+                      HealthVault
                     </h3>
                   </div>
 
@@ -617,7 +617,7 @@ const Home = () => {
             </div>
           </motion.div>
 
-          {/* Why Choose Medicare Section */}
+          {/* Why Choose HealthVault Section */}
           <motion.section
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -637,7 +637,7 @@ const Home = () => {
                   Why Choose Us
                 </span>
                 <h2 className="text-2xl md:text-4xl font-bold text-primary mb-4">
-                  Why Choose Medicare
+                  Why Choose HealthVault
                 </h2>
                 <p className="text-gray-600 max-w-2xl mx-auto font-normal">
                   We're revolutionizing healthcare management with our secure,
@@ -1100,7 +1100,7 @@ const Home = () => {
                 Share Your Experience
               </h3>
               <p className="text-gray-600 text-sm sm:text-base">
-                Help others by sharing your experience with Medicare
+                Help others by sharing your experience with HealthVault
               </p>
               <Link
                 to="/detail-review"
@@ -1243,7 +1243,7 @@ const Home = () => {
                   rows="4"
                   className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#252A61] focus:border-[#252A61] transition-all duration-200 bg-white/50 backdrop-blur-sm resize-none ${formData.review.length > 1000 ? "border-red-300" : ""
                     }`}
-                  placeholder="Share your experience with Medicare... (minimum 10 characters)"
+                  placeholder="Share your experience with HealthVault... (minimum 10 characters)"
                 ></textarea>
                 {formData.review.length < 10 && formData.review.length > 0 && (
                   <p className="text-xs text-red-500 mt-1">
@@ -1356,7 +1356,7 @@ const Home = () => {
               </div>
               
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                Medicare Platform
+                HealthVault Platform
                 <span className="block text-2xl md:text-3xl font-normal text-white/80 mt-2">
                   Full Launch - End of August 2025
                 </span>
@@ -1405,7 +1405,7 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <a 
-                    href="https://twitter.com/medicares_india" 
+                    href="https://twitter.com/healthvault_india" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="group flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 hover:border-white/40 transition-all duration-300"
@@ -1413,12 +1413,12 @@ const Home = () => {
                     <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
-                    <span className="text-white font-medium">@Medicares_india</span>
+                    <span className="text-white font-medium">@HealthVaults_india</span>
                     <FiExternalLink className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
                   </a>
                   
                   <a 
-                    href="https://instagram.com/medicaresindia" 
+                    href="https://instagram.com/healthvaultindia" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="group flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 hover:border-white/40 transition-all duration-300"
@@ -1426,18 +1426,18 @@ const Home = () => {
                     <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                     </svg>
-                    <span className="text-white font-medium">@medicaresindia</span>
+                    <span className="text-white font-medium">@healthvaultindia</span>
                     <FiExternalLink className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
                   </a>
                   
                   <a 
-                    href="mailto:support@medicares.in" 
+                    href="mailto:support@healthvault.in" 
                     className="group flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 hover:border-white/40 transition-all duration-300"
                   >
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-white font-medium">support@medicares.in</span>
+                    <span className="text-white font-medium">support@healthvault.in</span>
                     <FiExternalLink className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
                   </a>
                 </div>

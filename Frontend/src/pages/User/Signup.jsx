@@ -254,7 +254,7 @@ const Signup = () => {
                 <div className="bg-linear-to-b from-[#4318FF]/70 via-[#4318FF]/50 to-[#4318FF]/30 backdrop-blur-[2px] w-full h-full rounded-[40px]">
                   <div className="h-full flex flex-col justify-center px-12">
                     <h2 className="text-[42px] font-bold text-white text-center tracking-tight mb-8 drop-shadow-lg">
-                      Medicare Portal
+                      HealthVault Portal
                     </h2>
                     
                     {/* Features Grid */}
@@ -338,7 +338,7 @@ const Signup = () => {
                 Create Account
               </h1>
               <p className="text-[16px] sm:text-[19px] text-[#707EAE] leading-relaxed">
-                Join Medicare to access your secure medical dashboard and
+                Join HealthVault to access your secure medical dashboard and
                 healthcare services.
               </p>
             </motion.div>

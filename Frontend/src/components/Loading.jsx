@@ -39,7 +39,7 @@ const Loading = () => {
           className="text-center"
         >
           <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2 sm:mb-3">
-            Loading Medicare
+            Loading HealthVault
           </h2>
           <p className="text-gray-600 text-sm sm:text-base">
             Please wait while we prepare your health dashboard

@@ -2021,7 +2021,7 @@ const getFilteredReports = () => {
           >
             <img 
               src={handlogo} 
-              alt="Medicare Logo" 
+              alt="HealthVault Logo" 
               className="w-20 h-20 mx-auto mb-6 opacity-80" 
             />
             <h3 className="text-xl font-medium text-gray-900 mb-2">Search for a Patient</h3>

@@ -117,7 +117,7 @@ const additionalFeatures = [
 ]
 
 const processSteps = [
-  { step: '01', title: 'Sign Up', description: 'Create your secure Medicare account in minutes', icon: FiShield },
+  { step: '01', title: 'Sign Up', description: 'Create your secure HealthVault account in minutes', icon: FiShield },
   { step: '02', title: 'Upload Records', description: 'Add your existing medical records and reports', icon: FiUpload },
   { step: '03', title: 'Connect Devices', description: 'Sync your health monitoring devices seamlessly', icon: FiSmartphone },
   { step: '04', title: 'Start Monitoring', description: 'Track your health and get personalised insights', icon: FiActivity }
@@ -515,7 +515,7 @@ const Services = () => {
             </motion.h2>
             <motion.p variants={fadeUp}
               style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'clamp(0.95rem,2vw,1.1rem)', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
-              Powerful capabilities that make Medicare the most comprehensive digital health platform available.
+              Powerful capabilities that make HealthVault the most comprehensive digital health platform available.
             </motion.p>
           </motion.div>
 
@@ -686,7 +686,7 @@ const Services = () => {
           </h2>
 
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'clamp(0.95rem,2vw,1.1rem)', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-            Join thousands of users who trust Medicare for their healthcare management needs. Start your free trial today — no credit card required.
+            Join thousands of users who trust HealthVault for their healthcare management needs. Start your free trial today — no credit card required.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center" style={{ maxWidth: 420, margin: '0 auto' }}>

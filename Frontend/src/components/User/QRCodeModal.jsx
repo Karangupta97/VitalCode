@@ -14,7 +14,7 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
   const downloadQRCode = () => {
     const canvas = document.querySelector("canvas");
     const a = document.createElement("a");
-    a.download = `medicare-qr-${userUmid}.png`;
+    a.download = `healthvault-qr-${userUmid}.png`;
     a.href = canvas.toDataURL("image/png", 1.0);
     a.click();
   };
@@ -23,8 +23,8 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'My Medicare QR Code',
-          text: 'Scan this QR code to access my Medicare information',
+          title: 'My HealthVault QR Code',
+          text: 'Scan this QR code to access my HealthVault information',
           url: qrValue,
         });
       } else {
@@ -57,9 +57,9 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg md:text-xl font-semibold text-gray-800 flex items-center">
               <span className="bg-blue-100 p-1.5 rounded-lg mr-2">
-                <img src={logo} alt="Medicare" className="w-5 h-5" />
+                <img src={logo} alt="HealthVault" className="w-5 h-5" />
               </span>
-              Your Medicare QR
+              Your HealthVault QR
             </h3>
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -121,7 +121,7 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
             </div>
             <div className="mt-4 pt-3 border-t border-gray-100">
               <p className="text-xs text-gray-500">
-                Medicare ID: <span className="font-semibold">{userUmid}</span>
+                HealthVault ID: <span className="font-semibold">{userUmid}</span>
               </p>
             </div>
           </div>

@@ -114,7 +114,7 @@ const UnderDevelopmentBanner = () => {
       {/* Right Section: Social Icons */}
       <div className="flex items-center sm:items-start gap-2 sm:gap-3 self-end sm:self-center mt-2 sm:mt-0">
         <a
-          href="https://twitter.com/medicares_india"
+          href="https://twitter.com/healthvault_india"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 rounded-full hover:bg-white/20 transition-colors"
@@ -123,7 +123,7 @@ const UnderDevelopmentBanner = () => {
           <FaTwitter className="h-5 w-5 text-white hover:scale-110 transition-transform" />
         </a>
         <a
-          href="https://instagram.com/medicaresindia"
+          href="https://instagram.com/healthvaultindia"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 rounded-full hover:bg-white/20 transition-colors"
@@ -132,7 +132,7 @@ const UnderDevelopmentBanner = () => {
           <FaInstagram className="h-5 w-5 text-white hover:scale-110 transition-transform" />
         </a>
         <a
-          href="mailto:support@medicares.in"
+          href="mailto:support@healthvault.in"
           className="p-2 rounded-full hover:bg-white/20 transition-colors"
           aria-label="Email"
         >

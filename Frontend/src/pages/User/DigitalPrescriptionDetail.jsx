@@ -372,7 +372,7 @@ const PrescriptionDetail = () => {
                     <FiBriefcase className="text-blue-600 text-xs sm:text-base" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-800 text-xs sm:text-sm truncate">{prescription.hospitalName || "Medicare Hospital"}</p>
+                    <p className="font-medium text-gray-800 text-xs sm:text-sm truncate">{prescription.hospitalName || "HealthVault Hospital"}</p>
                     <p className="text-xs text-gray-600 truncate">{prescription.hospitalAddress || "Address not specified"}</p>
                     {prescription.hospitalPhone && (
                       <p className="text-xs text-gray-500 mt-1 truncate">Tel: {prescription.hospitalPhone}</p>

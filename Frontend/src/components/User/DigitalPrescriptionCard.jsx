@@ -192,7 +192,7 @@ const DigitalPrescriptionCard = ({
               <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                 <FiMapPin className="w-3 h-3" />
                 <span className="truncate">
-                  {prescription.hospitalName || "Medicare Hospital"}
+                  {prescription.hospitalName || "HealthVault Hospital"}
                 </span>
               </div>
             </div>

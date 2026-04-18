@@ -405,7 +405,7 @@ const FounderDashboard = () => {
                 Welcome back, {founder?.name || 'Founder'}
               </h1>
               <p className="mt-1 text-blue-100 dark:text-blue-200">
-                Here's an overview of your Medicare platform
+                Here's an overview of your HealthVault platform
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex items-center gap-2">

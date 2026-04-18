@@ -89,7 +89,7 @@ const Team = () => {
       joinDate: "2024",
       bio: "Passionate about healthcare technology and committed to creating innovative solutions that improve patient care and medical record management. Specialized in building secure, scalable, and user-friendly healthcare applications with a focus on accessibility and user experience.",
       detailedBio:
-        "With over 3 years of experience in full-stack development, Karan has led multiple healthcare technology projects focusing on patient data security and accessibility. His vision for Medicare stems from personal experiences with fragmented healthcare systems and the need for unified, patient-controlled medical records.",
+        "With over 3 years of experience in full-stack development, Karan has led multiple healthcare technology projects focusing on patient data security and accessibility. His vision for HealthVault stems from personal experiences with fragmented healthcare systems and the need for unified, patient-controlled medical records.",
       skills: [
         {
           name: "JavaScript",
@@ -197,10 +197,10 @@ const Team = () => {
   const teamSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Medicare",
+    name: "HealthVault",
     description:
-      "The innovative minds behind Medicare's mission to revolutionize healthcare management",
-    url: "https://medicares.in/team",
+      "The innovative minds behind HealthVault's mission to revolutionize healthcare management",
+    url: "https://healthvault.in/team",
     employee: teamMembers.map((member) => ({
       "@type": "Person",
       name: member.name,
@@ -220,7 +220,7 @@ const Team = () => {
     {
       title: "Development Team",
       description:
-        "Our talented developers work on creating and maintaining the Medicare platform, ensuring it remains secure, efficient, and user-friendly.",
+        "Our talented developers work on creating and maintaining the HealthVault platform, ensuring it remains secure, efficient, and user-friendly.",
       comingSoon: true,
       icon: (
         <svg
@@ -264,7 +264,7 @@ const Team = () => {
     {
       title: "Customer Support",
       description:
-        "Dedicated specialists who help users navigate the Medicare platform and resolve any issues they might encounter.",
+        "Dedicated specialists who help users navigate the HealthVault platform and resolve any issues they might encounter.",
       comingSoon: true,
       icon: (
         <svg
@@ -311,37 +311,37 @@ const Team = () => {
         <title>Team</title>
         <meta
           name="description"
-          content="Meet the innovative minds behind Medicare's mission to revolutionize healthcare management. Our team is dedicated to creating secure, scalable healthcare solutions."
+          content="Meet the innovative minds behind HealthVault's mission to revolutionize healthcare management. Our team is dedicated to creating secure, scalable healthcare solutions."
         />
         <meta
           name="keywords"
-          content="Medicare team, healthcare technology, medical records management, healthcare innovation, digital health platform"
+          content="HealthVault team, healthcare technology, medical records management, healthcare innovation, digital health platform"
         />
 
         {/* Open Graph tags */}
         <meta
           property="og:title"
-          content="Meet Our Team | Medicare - Healthcare Management Platform"
+          content="Meet Our Team | HealthVault - Healthcare Management Platform"
         />
         <meta
           property="og:description"
-          content="Meet the innovative minds behind Medicare's mission to revolutionize healthcare management. Our team is dedicated to creating secure, scalable healthcare solutions."
+          content="Meet the innovative minds behind HealthVault's mission to revolutionize healthcare management. Our team is dedicated to creating secure, scalable healthcare solutions."
         />
         <meta property="og:image" content="/medicares-team.jpg" />
-        <meta property="og:url" content="https://medicares.in/team" />
+        <meta property="og:url" content="https://healthvault.in/team" />
         <meta property="og:type" content="website" />
 
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Meet Our Team | Medicare" />
+        <meta name="twitter:title" content="Meet Our Team | HealthVault" />
         <meta
           name="twitter:description"
-          content="Meet the innovative minds behind Medicare's mission to revolutionize healthcare management."
+          content="Meet the innovative minds behind HealthVault's mission to revolutionize healthcare management."
         />
         <meta name="twitter:image" content="/medicare-team.jpg" />
 
         {/* Canonical URL */}
-        <link rel="canonical" href="https://medicares.in/team" />
+        <link rel="canonical" href="https://healthvault.in/team" />
 
         {/* Schema.org JSON-LD */}
         <script type="application/ld+json">{JSON.stringify(teamSchema)}</script>
@@ -382,7 +382,7 @@ const Team = () => {
                   transition={{ duration: 0.8, delay: 0.4 }}
                   className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed"
                 >
-                  The innovative minds behind Medicare's mission to
+                  The innovative minds behind HealthVault's mission to
                   revolutionize healthcare management through cutting-edge
                   technology
                 </motion.p>
@@ -457,7 +457,7 @@ const Team = () => {
                                 whileHover={{ scale: 1.05 }}
                                 className="px-4 py-2 rounded-full bg-[#252A61] text-white text-sm font-semibold shadow-lg"
                               >
-                                Founder & CEO of Medicare
+                                Founder & CEO of HealthVault
                               </motion.span>
                               <span className="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium">
                                 Full Stack Developer
@@ -699,7 +699,7 @@ const Team = () => {
                             </motion.a>
 
                             <motion.a
-                              href="https://mail.google.com/mail/?view=cm&fs=1&to=karangupta3319@gmail.com&su=Regarding%20Medicare%20Platform&body=Hello%20Karan,%0A%0AI%20am%20reaching%20out%20regarding%20the%20Medicare%20platform.%0A%0ABest%20regards,"
+                              href="https://mail.google.com/mail/?view=cm&fs=1&to=karangupta3319@gmail.com&su=Regarding%20HealthVault%20Platform&body=Hello%20Karan,%0A%0AI%20am%20reaching%20out%20regarding%20the%20HealthVault%20platform.%0A%0ABest%20regards,"
                               target="_blank"
                               rel="noopener noreferrer"
                               whileHover={{ scale: 1.05, y: -2 }}
@@ -762,7 +762,7 @@ const Team = () => {
                       </span>
                     </h2>
                     <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed">
-                      Medicare combines advanced technology with user-centered
+                      HealthVault combines advanced technology with user-centered
                       design to revolutionize healthcare record management and
                       accessibility.
                     </p>
@@ -1268,10 +1268,10 @@ const Team = () => {
                 >
                   <div className="p-8 bg-linear-to-r from-[#252A61]/10 to-[#6236FF]/10 dark:from-[#252A61]/20 dark:to-[#6236FF]/20">
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                      How Medicare Compares
+                      How HealthVault Compares
                     </h3>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-                      See how Medicare stands out against traditional health
+                      See how HealthVault stands out against traditional health
                       record systems
                     </p>
                   </div>
@@ -1284,7 +1284,7 @@ const Team = () => {
                             Features
                           </th>
                           <th className="px-8 py-6 font-semibold text-[#252A61] dark:text-[#8B6FFF] text-lg">
-                            Medicare
+                            HealthVault
                           </th>
                           <th className="px-8 py-6 font-semibold text-gray-700 dark:text-gray-300 text-lg">
                             Traditional EMR
@@ -1718,7 +1718,7 @@ const Team = () => {
                 {/* Image caption */}
                 <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6">
                   <h3 className="text-white text-xl font-bold mb-1">Karan Gupta</h3>
-                  <p className="text-white/80 text-sm">Founder & CEO of Medicare, Full Stack Developer</p>
+                  <p className="text-white/80 text-sm">Founder & CEO of HealthVault, Full Stack Developer</p>
                 </div>
               </div>
             </motion.div>

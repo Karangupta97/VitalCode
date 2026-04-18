@@ -46,15 +46,15 @@ const UserSearchForm = ({ onSearch }) => {
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md border border-blue-100">
       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-        <FiSearch className="text-blue-500 mr-2" /> Find Medicare User
+        <FiSearch className="text-blue-500 mr-2" /> Find HealthVault User
       </h3>
       <p className="text-sm text-gray-600 mb-4">
-        Enter a Medicare ID to find and verify a user's identity
+        Enter a HealthVault ID to find and verify a user's identity
       </p>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="umid" className="block text-sm font-medium text-gray-700 mb-1">
-            Medicare ID (UMID)
+            HealthVault ID (UMID)
           </label>
           <input
             type="text"
@@ -179,12 +179,12 @@ const UserDetails = () => {
     // Create vCard format
     const vCard = `BEGIN:VCARD
 VERSION:3.0
-FN:${user.name || 'Medicare User'}
-ORG:Medicare
+FN:${user.name || 'HealthVault User'}
+ORG:HealthVault
 TEL;TYPE=WORK,VOICE:${user.phone || ''}
 ADR;TYPE=WORK:;;${user.address || ''}
 EMAIL:${user.email || ''}
-NOTE:Medicare ID: ${user.umid || ''}
+NOTE:HealthVault ID: ${user.umid || ''}
 END:VCARD`;
 
     // Create a download link for the vCard
@@ -192,7 +192,7 @@ END:VCARD`;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${user.name || 'medicare-user'}.vcf`;
+    a.download = `${user.name || 'healthvault-user'}.vcf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -208,8 +208,8 @@ END:VCARD`;
     try {
       if (navigator.share) {
         await navigator.share({
-          title: `Medicare User: ${user.name}`,
-          text: `Medicare ID: ${user.umid}\nName: ${user.name}`,
+          title: `HealthVault User: ${user.name}`,
+          text: `HealthVault ID: ${user.umid}\nName: ${user.name}`,
           url: window.location.href
         });
       } else {
@@ -250,7 +250,7 @@ END:VCARD`;
         <div className="bg-linear-to-r from-blue-600 to-indigo-700 h-24 sm:h-32 md:h-40 flex items-center justify-center">
           <div className="flex items-center gap-2 text-white">
             <FiUser size={28} className="text-white drop-shadow-md" />
-            <h2 className="text-xl md:text-2xl font-bold drop-shadow-md">Medicare User Profile</h2>
+            <h2 className="text-xl md:text-2xl font-bold drop-shadow-md">HealthVault User Profile</h2>
           </div>
         </div>
         
@@ -283,7 +283,7 @@ END:VCARD`;
                 {user?.umid && (
                   <div className="inline-flex items-center text-blue-700 bg-blue-50 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border border-blue-100">
                     <FiShield className="mr-1 sm:mr-2" size={14} />
-                    Medicare ID: {user.umid}
+                    HealthVault ID: {user.umid}
                   </div>
                 )}
                 {user?.verified && (
@@ -369,7 +369,7 @@ END:VCARD`;
                 className="border border-gray-100 rounded-lg p-3 sm:p-4 hover:border-blue-100 transition-all"
               >
                 <h3 className="text-xs sm:text-sm text-gray-500 mb-1 flex items-center">
-                  <FiShield className="mr-1.5 sm:mr-2 text-blue-500" /> Medicare ID
+                  <FiShield className="mr-1.5 sm:mr-2 text-blue-500" /> HealthVault ID
                 </h3>
                 <p className="font-medium text-gray-800 text-sm sm:text-base">{user?.umid || "Not provided"}</p>
               </motion.div>
@@ -415,11 +415,11 @@ END:VCARD`;
       >
         <div className="text-center">
           <h3 className="text-base sm:text-lg md:text-xl font-medium text-gray-800 mb-2 sm:mb-3">
-            Medicare Information
+            HealthVault Information
           </h3>
           <p className="text-xs sm:text-sm text-gray-600 mb-4">
             For additional medical information or plan details, please consult with your healthcare provider
-            or Medicare representative.
+            or HealthVault representative.
           </p>
           
           <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
@@ -456,7 +456,7 @@ END:VCARD`;
         variants={itemVariants}
         className="mt-6 sm:mt-8 text-center text-gray-500 text-xs sm:text-sm"
       >
-        <p>This is an official Medicare digital identification for healthcare provider use.</p>
+        <p>This is an official HealthVault digital identification for healthcare provider use.</p>
         <p className="mt-1">Scan the QR code to verify this information electronically.</p>
       </motion.div>
     </motion.div>
@@ -497,7 +497,7 @@ END:VCARD`;
               <UserSearchForm onSearch={fetchUserDetails} />
               <div className="mt-6 text-center">
                 <Link to="/user-lookup" className="text-blue-600 hover:text-blue-800 text-sm">
-                  Go to Medicare User Lookup
+                  Go to HealthVault User Lookup
                 </Link>
               </div>
             </div>

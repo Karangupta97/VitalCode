@@ -92,7 +92,7 @@ const Settings = () => {
         devices: "Devices",
         about: "About"
       };
-      document.title = `${tabLabels[activeTab]} - Settings | Medicare`;
+      document.title = `${tabLabels[activeTab]} - Settings | HealthVault`;
     } catch (error) {
       console.error('Failed to save active tab to localStorage:', error);
     }
@@ -117,7 +117,7 @@ const Settings = () => {
   // Cleanup effect to reset page title on unmount
   useEffect(() => {
     return () => {
-      document.title = "Medicare";
+      document.title = "HealthVault";
     };
   }, []);
 
@@ -385,7 +385,7 @@ const Settings = () => {
                         {key === "appointments" && "Receive notifications about your upcoming appointments"}
                         {key === "reminders" && "Get reminders about your medication schedule"}
                         {key === "reports" && "Be notified when new medical reports are available"}
-                        {key === "news" && "Receive news and updates from Medicare"}
+                        {key === "news" && "Receive news and updates from HealthVault"}
                       </p>
                     </div>
                     <ToggleSwitch enabled={value} onChange={() => handleEmailNotificationChange(key)} />
@@ -409,7 +409,7 @@ const Settings = () => {
                         {key === "appointments" && "Receive push notifications about your upcoming appointments"}
                         {key === "reminders" && "Get push reminders about your medication schedule"}
                         {key === "reports" && "Be notified when new medical reports are available"}
-                        {key === "news" && "Receive news and updates from Medicare"}
+                        {key === "news" && "Receive news and updates from HealthVault"}
                       </p>
                     </div>
                     <ToggleSwitch enabled={value} onChange={() => handlePushNotificationChange(key)} />
@@ -824,13 +824,13 @@ const Settings = () => {
             className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 max-w-lg mx-auto"
           >
             <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Check className="w-7 h-7 text-indigo-500" /> About Medicare
+              <Check className="w-7 h-7 text-indigo-500" /> About HealthVault
             </h3>
             <p className="text-base text-gray-700 mb-2">Version Beta 1.0.0</p>
             <p className="text-sm text-gray-500 mb-4">
-              Medicare is a platform for managing your health records, appointments, and more. For support, contact us at <a href="mailto:support@medicare.com" className="text-indigo-600 underline">support@medicare.com</a>.
+              HealthVault is a platform for managing your health records, appointments, and more. For support, contact us at <a href="mailto:support@healthvault.com" className="text-indigo-600 underline">support@healthvault.com</a>.
             </p>
-            <p className="text-xs text-gray-400">© 2025 Medicare. All rights reserved.</p>
+            <p className="text-xs text-gray-400">© 2025 HealthVault. All rights reserved.</p>
           </motion.div>
         );
       default:

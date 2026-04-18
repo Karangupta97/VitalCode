@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { FiArrowRight, FiCheck, FiPhone, FiMail, FiMapPin, FiClock, FiUser, FiHeart, FiShield, FiTarget, FiTrendingUp, FiDownload } from 'react-icons/fi';
 import { useAuthStore } from "../store/Patient/authStore";
-import MedicareLogo from '../assets/Logo/Medicare logo.png';
+import HealthVaultLogo from '../assets/Logo/Medicare logo.png';
 
 const About = () => {
   const { user, logout } = useAuthStore();
@@ -110,7 +110,7 @@ const About = () => {
             className="text-center"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-              About <span className="text-[#252A61] bg-clip-text bg-linear-to-r from-indigo-700 to-blue-500">Medicare</span>
+              About <span className="text-[#252A61] bg-clip-text bg-linear-to-r from-indigo-700 to-blue-500">HealthVault</span>
             </h1>
             <p className="mt-6 max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
               Revolutionizing healthcare through technology and putting patients at the center of their medical journey.
@@ -175,7 +175,7 @@ const About = () => {
                 Delivering Healthcare <span className="text-[#252A61] italic">Excellence</span> Through Technology
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-                At Medicare, we're dedicated to revolutionizing healthcare management
+                At HealthVault, we're dedicated to revolutionizing healthcare management
                 by providing a seamless, secure, and user-friendly platform for
                 managing medical records and healthcare services. We believe that everyone
                 deserves access to efficient, transparent healthcare information.
@@ -469,7 +469,7 @@ const About = () => {
             className="text-center mb-16"
           >
             <div className="inline-block mb-6 rounded-full bg-red-100 dark:bg-red-900/30 px-4 py-1.5">
-              <span className="text-sm font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">The People Behind Medicare</span>
+              <span className="text-sm font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">The People Behind HealthVault</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
               Our <span className="text-red-600 dark:text-red-400">Expert Team</span>

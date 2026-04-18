@@ -38,7 +38,7 @@ let mockReminderId = Date.now();
 
 // Load saved reminders from localStorage
 try {
-  const savedReminders = localStorage.getItem("medicare-reminders");
+  const savedReminders = localStorage.getItem("healthvault-reminders");
   if (savedReminders) {
     mockReminders = JSON.parse(savedReminders);
     console.log(
@@ -64,7 +64,7 @@ try {
 // Helper function to save reminders to localStorage
 const saveRemindersToStorage = () => {
   try {
-    localStorage.setItem("medicare-reminders", JSON.stringify(mockReminders));
+    localStorage.setItem("healthvault-reminders", JSON.stringify(mockReminders));
     console.log(
       "Saved reminders to localStorage:",
       mockReminders.length,

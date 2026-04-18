@@ -13,7 +13,7 @@ const UserLookup = () => {
   const [error, setError] = useState(null);
   const [recentSearches, setRecentSearches] = useState(() => {
     // Get recent searches from localStorage
-    const saved = localStorage.getItem("recentMedicareSearches");
+    const saved = localStorage.getItem("recentHealthVaultSearches");
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -31,16 +31,16 @@ const UserLookup = () => {
       
       if (response.data && response.data.success) {
         // Save to recent searches
-        saveToRecentSearches(umid.trim(), response.data.user?.name || "Medicare User");
+        saveToRecentSearches(umid.trim(), response.data.user?.name || "HealthVault User");
         
         // Navigate to the user profile
         navigate(`/user/${umid.trim()}`);
       } else {
-        setError("User not found. Please check the Medicare ID and try again.");
+        setError("User not found. Please check the HealthVault ID and try again.");
       }
     } catch (err) {
       console.error("Error looking up user:", err);
-      setError(err.response?.data?.message || "Error looking up user. Please check the Medicare ID and try again.");
+      setError(err.response?.data?.message || "Error looking up user. Please check the HealthVault ID and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -54,13 +54,13 @@ const UserLookup = () => {
     const updatedSearches = [search, ...recentSearches.filter(s => s.umid !== searchUmid)].slice(0, 5);
     
     setRecentSearches(updatedSearches);
-    localStorage.setItem("recentMedicareSearches", JSON.stringify(updatedSearches));
+    localStorage.setItem("recentHealthVaultSearches", JSON.stringify(updatedSearches));
   };
 
   // Clear all recent searches
   const clearRecentSearches = () => {
     setRecentSearches([]);
-    localStorage.removeItem("recentMedicareSearches");
+    localStorage.removeItem("recentHealthVaultSearches");
     toast.success("Recent searches cleared");
   };
 
@@ -74,9 +74,9 @@ const UserLookup = () => {
           </Link>
           
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Medicare User Lookup</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">HealthVault User Lookup</h1>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Enter a Medicare ID to find and verify a user's identity. This tool is for healthcare providers 
+              Enter a HealthVault ID to find and verify a user's identity. This tool is for healthcare providers 
               and authorized personnel only.
             </p>
           </div>
@@ -91,7 +91,7 @@ const UserLookup = () => {
           <div className="bg-linear-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
             <div className="flex items-center">
               <FiUser className="mr-2" size={20} />
-              <h2 className="text-xl font-semibold">Find Medicare User</h2>
+              <h2 className="text-xl font-semibold">Find HealthVault User</h2>
             </div>
           </div>
           
@@ -99,7 +99,7 @@ const UserLookup = () => {
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label htmlFor="umid" className="block text-sm font-medium text-gray-700 mb-1">
-                  Medicare ID (UMID)
+                  HealthVault ID (UMID)
                 </label>
                 <div className="relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -201,8 +201,8 @@ const UserLookup = () => {
             <FiCheck className="mr-1.5" /> Quick Access Tips
           </h3>
           <ul className="text-xs text-blue-700 space-y-1">
-            <li>• Scan the QR code on a Medicare card to automatically lookup a user</li>
-            <li>• Medicare IDs typically begin with "MED-" followed by 20 digits</li>
+            <li>• Scan the QR code on a HealthVault card to automatically lookup a user</li>
+            <li>• HealthVault IDs typically begin with "MED-" followed by 20 digits</li>
             <li>• Recent searches are saved for quicker access</li>
           </ul>
         </div>

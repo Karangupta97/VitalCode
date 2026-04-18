@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiX } from 'react-icons/fi';
 
-const FloatingActionButton = ({ link = '/user-lookup', icon = <FiSearch size={24} />, title = 'Find Medicare User' }) => {
+const FloatingActionButton = ({ link = '/user-lookup', icon = <FiSearch size={24} />, title = 'Find HealthVault User' }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [showButton, setShowButton] = useState(false);

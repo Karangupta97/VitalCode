@@ -201,7 +201,7 @@ const DoctorVerification = () => {
   return (
     <DashboardLayout activePage="doctor-verification">
       <Helmet>
-        <title>Doctor Verification | Medicare Staff Dashboard</title>
+        <title>Doctor Verification | HealthVault Staff Dashboard</title>
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

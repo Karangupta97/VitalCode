@@ -217,13 +217,13 @@ const InviteModal = ({ isOpen, onClose, onInvite, onInviteSuccess }) => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-white">Invite Family Member</h3>
-              <p className="text-emerald-200 text-sm">Send invite via Medicare ID</p>
+              <p className="text-emerald-200 text-sm">Send invite via HealthVault ID</p>
             </div>
           </div>
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-1 block">Medicare ID (UMID)</label>
+            <label className="text-sm font-semibold text-gray-700 mb-1 block">HealthVault ID (UMID)</label>
             <input
               type="text"
               value={umid}
@@ -600,7 +600,7 @@ const FamilyVault = () => {
   if (!vault && !hasPlan) {
     return (
       <div className="p-4 md:p-6 lg:p-8">
-        <Helmet><title>Family Vault | Medicare</title></Helmet>
+        <Helmet><title>Family Vault | HealthVault</title></Helmet>
         <UpgradePrompt />
       </div>
     );
@@ -610,7 +610,7 @@ const FamilyVault = () => {
   if (!vault) {
     return (
       <div className="p-4 md:p-6 lg:p-8 space-y-8">
-        <Helmet><title>Family Vault | Medicare</title></Helmet>
+        <Helmet><title>Family Vault | HealthVault</title></Helmet>
 
         {/* Create vault prompt */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center">
@@ -644,7 +644,7 @@ const FamilyVault = () => {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
-      <Helmet><title>Family Vault — {vault.name} | Medicare</title></Helmet>
+      <Helmet><title>Family Vault — {vault.name} | HealthVault</title></Helmet>
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

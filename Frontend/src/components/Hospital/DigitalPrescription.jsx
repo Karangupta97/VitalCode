@@ -324,12 +324,12 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
                     <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
                       <div className="flex items-center">
                         <div className="bg-blue-50 p-2 rounded-lg shadow-sm mr-3">
-                          <img src="/logo.png" alt="Medicare Logo" className="h-12 w-12" />
+                          <img src="/logo.png" alt="HealthVault Logo" className="h-12 w-12" />
                         </div>
                         <div>
-                          <h2 className="font-bold text-xl text-gray-900">Medicare Hospital</h2>
+                          <h2 className="font-bold text-xl text-gray-900">HealthVault Hospital</h2>
                           <p className="text-gray-500 text-sm">123 Healthcare Ave, Medical District</p>
-                          <p className="text-gray-500 text-sm">contact@medicare.healthcare</p>
+                          <p className="text-gray-500 text-sm">contact@healthvault.healthcare</p>
                         </div>
                       </div>
                       <div className="bg-blue-50 p-4 rounded-lg shadow-sm text-right">

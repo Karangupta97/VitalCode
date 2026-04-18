@@ -440,7 +440,7 @@ const PricingPage = () => {
           key: data.keyId,
           amount: data.amount,
           currency: data.currency,
-          name: "Medicare",
+          name: "HealthVault",
           description: `${plan.name} Plan — ${annual ? "Annual" : "Monthly"}`,
           order_id: data.orderId,
           handler: async function (response) {
@@ -527,10 +527,10 @@ const PricingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Pricing — Medicare | Affordable Healthcare Plans</title>
+        <title>Pricing — HealthVault | Affordable Healthcare Plans</title>
         <meta
           name="description"
-          content="Choose the right Medicare plan for you and your family. Free, Pro, and Premium plans with features like unlimited report uploads, Family Vault, AI health insights, and more."
+          content="Choose the right HealthVault plan for you and your family. Free, Pro, and Premium plans with features like unlimited report uploads, Family Vault, AI health insights, and more."
         />
       </Helmet>
 
@@ -804,7 +804,7 @@ const PricingPage = () => {
               <span className="text-amber-300">health records</span>?
             </h2>
             <p className="mt-4 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
-              Join thousands of patients who trust Medicare to store, manage, and
+              Join thousands of patients who trust HealthVault to store, manage, and
               share their medical records securely.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">

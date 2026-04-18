@@ -26,7 +26,7 @@ const EmergencyFolderPublic = () => {
 
   useEffect(() => {
     if (!umid?.trim()) {
-      setError("Invalid Medicare ID");
+      setError("Invalid HealthVault ID");
       setLoading(false);
       return;
     }
@@ -48,7 +48,7 @@ const EmergencyFolderPublic = () => {
         const msg =
           err.response?.data?.message ||
           err.response?.status === 404
-            ? "No Emergency Folder found for this Medicare ID"
+            ? "No Emergency Folder found for this HealthVault ID"
             : "Failed to load Emergency Folder";
         setError(msg);
         setData(emptyData);
@@ -142,7 +142,7 @@ const EmergencyFolderPublic = () => {
         {data.user.umid && (
           <div className="mb-2 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm ring-1 ring-slate-200/50 sm:mb-2 sm:p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Medicare ID (UMID)
+              HealthVault ID (UMID)
             </p>
             <p className="mt-1 break-all font-mono text-lg font-bold tracking-wide text-slate-900 sm:text-xl">
               {data.user.umid}

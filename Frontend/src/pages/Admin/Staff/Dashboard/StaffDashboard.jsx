@@ -97,9 +97,9 @@ export const DashboardLayout = ({ children, activePage }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-center py-5 border-b border-gray-100">
-            <img src={logo} alt="Medicare Logo" className="h-10" />
+            <img src={logo} alt="HealthVault Logo" className="h-10" />
             <div className="ml-2">
-              <span className="text-xl font-bold text-blue-600 block">Medicare</span>
+              <span className="text-xl font-bold text-blue-600 block">HealthVault</span>
               <span className="text-xs text-gray-500">Staff Portal</span>
             </div>
           </div>
@@ -634,7 +634,7 @@ const StaffDashboard = () => {
               <div className="flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg">
                 <FaHospital className="mr-2 text-blue-600" />
                 <span className="text-sm font-medium">
-                  Medicare Medical Center
+                  HealthVault Medical Center
                 </span>
               </div>
             </div>

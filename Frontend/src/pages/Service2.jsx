@@ -161,7 +161,7 @@ const processSteps = [
   {
     step: "01",
     title: "Sign Up",
-    description: "Create your secure Medicare account in minutes"
+    description: "Create your secure HealthVault account in minutes"
   },
   {
     step: "02",
@@ -382,7 +382,7 @@ const Service2 = () => {
               variants={itemVariants}
               className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
             >
-              Enhanced capabilities that make Medicare the most comprehensive healthcare platform
+              Enhanced capabilities that make HealthVault the most comprehensive healthcare platform
             </motion.p>
           </motion.div>
 
@@ -440,7 +440,7 @@ const Service2 = () => {
               variants={itemVariants}
               className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
             >
-              Get started with Medicare in four simple steps
+              Get started with HealthVault in four simple steps
             </motion.p>
           </motion.div>
 
@@ -490,7 +490,7 @@ const Service2 = () => {
               Ready to Transform Your Healthcare Experience?
             </h2>
             <p className="text-xl text-gray-300 mb-8">
-              Join thousands of users who trust Medicare for their healthcare management needs
+              Join thousands of users who trust HealthVault for their healthcare management needs
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

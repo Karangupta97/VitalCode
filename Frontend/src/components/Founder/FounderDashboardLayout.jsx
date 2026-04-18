@@ -291,14 +291,14 @@ const FounderDashboardLayout = ({ children }) => {
           }`}
         >
           {/* Sidebar header with logo */}
-          <div className="flex items-center justify-between h-16 px-4 bg-linear-to-r from-blue-700 to-indigo-800 dark:from-blue-900 dark:to-indigo-950">
+          <div className="flex items-center justify-between h-20 px-4 bg-linear-to-r from-blue-700 to-indigo-800 dark:from-blue-900 dark:to-indigo-950">
             <motion.div 
               initial={false}
               animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : "auto" }}
-              className="flex items-center overflow-hidden"
+              className="flex items-center gap-3 overflow-hidden"
             >
-              <img src={Logo} alt="Medicare Logo" className="h-8 w-8" />
-              <span className="ml-2 text-xl font-semibold text-white whitespace-nowrap">Medicare</span>
+              <img src={Logo} alt="HealthVault Logo" className="h-12 w-12" />
+              <span className="text-3xl font-semibold text-white whitespace-nowrap leading-none">HealthVault</span>
             </motion.div>
             {!collapsed && (
               <button

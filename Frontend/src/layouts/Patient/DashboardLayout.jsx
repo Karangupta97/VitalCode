@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import debounce from 'lodash.debounce';
 import usericon from "../../assets/user.png";
-import MedicareLogo from "../../assets/Logo/Medicare logo 1.png";
+import HealthVaultLogo from "../../assets/Logo/Medicare logo 1.png";
 import HandLogo from "../../assets/Logo/hand logo.png";
 import {
   LayoutDashboard,
@@ -848,8 +848,8 @@ const DashboardLayout = () => {
             {!isSidebarCollapsed ? (
               <Link to="/" className="flex items-center justify-center">
                 <img
-                  src={MedicareLogo}
-                  alt="Medicare Logo"
+                  src={HealthVaultLogo}
+                  alt="HealthVault Logo"
                   className="w-32 h-auto"
                 />
               </Link>
@@ -857,12 +857,12 @@ const DashboardLayout = () => {
               <Link
                 to="/"
                 className="flex items-center justify-center"
-                onMouseEnter={(e) => handleTooltipShow(e, "Medicare Home")}
+                onMouseEnter={(e) => handleTooltipShow(e, "HealthVault Home")}
                 onMouseLeave={handleTooltipHide}
               >
                 <img
                   src={HandLogo}
-                  alt="Medicare Hand Logo"
+                  alt="HealthVault Hand Logo"
                   className="w-10 h-10 object-contain"
                 />
               </Link>

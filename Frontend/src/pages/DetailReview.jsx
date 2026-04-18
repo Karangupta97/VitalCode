@@ -377,7 +377,7 @@ const DetailReview = () => {
               Share Your Experience
             </h1>
             <p className="text-gray-600">
-              Help others by sharing your detailed experience with Medicare
+              Help others by sharing your detailed experience with HealthVault
             </p>
           </div>
 

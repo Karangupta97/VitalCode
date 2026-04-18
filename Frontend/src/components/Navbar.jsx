@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Logo from "../assets/Logo/Whitebgtextlogo.jpg";
+import Logo from "../assets/Logo/textlogo.png";
 import UserIcon from "../assets/user.png";
 import {
   FiUser,

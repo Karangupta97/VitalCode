@@ -89,7 +89,7 @@ const FamilyVaultMemberDetail = () => {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <Helmet>
-        <title>{memberName} — Family Vault | Medicare</title>
+        <title>{memberName} — Family Vault | HealthVault</title>
       </Helmet>
 
       {/* Back + Header */}

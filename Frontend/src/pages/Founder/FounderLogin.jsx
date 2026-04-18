@@ -202,7 +202,7 @@ const FounderLogin = () => {
             required
             autoFocus
             className="appearance-none block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base dark:bg-gray-800/50 dark:border-gray-700 dark:text-white transition-all duration-200"
-            placeholder="founder@medicare.com"
+            placeholder="founder@healthvault.com"
           />
         </div>
       </div>
@@ -267,7 +267,7 @@ const FounderLogin = () => {
       <div className="flex items-center justify-center mt-6">
         <div className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
           <FiShield className="text-blue-600 dark:text-blue-400" />
-          <span>Secured by Medicare</span>
+          <span>Secured by HealthVault</span>
         </div>
       </div>
     </motion.form>
@@ -441,7 +441,7 @@ const FounderLogin = () => {
               <div className="flex items-start">
                 <FiAlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 shrink-0 mt-0.5" />
                 <p className="ml-3 text-xs text-yellow-700 dark:text-yellow-500">
-                  This secure area is restricted to Medicare founding members only. All access attempts are logged.
+                  This secure area is restricted to HealthVault founding members only. All access attempts are logged.
                 </p>
               </div>
             </div>
@@ -470,7 +470,7 @@ const FounderLogin = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-blue-200">
-            Medicare &copy; {new Date().getFullYear()} • Founder Authentication System
+            HealthVault &copy; {new Date().getFullYear()} • Founder Authentication System
           </p>
         </div>
       </div>

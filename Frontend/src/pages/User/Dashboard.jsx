@@ -6,7 +6,7 @@ import PrescriptionQRModal from "../../components/User/PrescriptionQRModal";
 import ProfilePhotoModal from "../../components/User/ProfilePhotoModal";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { io } from "socket.io-client";
-import MedicareLogo from "@assets/Logo/logo.png";
+import HealthVaultLogo from "@assets/Logo/logo.png";
 import {
   LayoutGrid,
   Target,
@@ -434,7 +434,7 @@ const Dashboard = () => {
   //             className="hidden md:flex items-center gap-1 sm:gap-2 ml-1 sm:ml-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm shadow-md"
   //           >
   //             <FiGrid size={12} />
-  //             My Medicare ID
+  //             My HealthVault ID
   //           </motion.button>
   //         </div>
   //       </div>
@@ -442,7 +442,7 @@ const Dashboard = () => {
   //   </motion.div>
   // );
 
-//Your Medicare Dashboard
+//Your HealthVault Dashboard
   const HealthOverviewPanel = () => (
     <motion.div
       variants={itemVariants}
@@ -454,7 +454,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-center gap-1 sm:gap-2 text-white">
             <Shield className="text-white drop-shadow-md w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
             <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold drop-shadow-md text-center">
-              Your Medicare Dashboard
+              Your HealthVault Dashboard
             </h2>
           </div>
         </div>
@@ -510,13 +510,13 @@ const Dashboard = () => {
                       className="cursor-pointer"
                       onClick={() => {
                       navigator.clipboard.writeText(user.umid);
-                      toast.success("Medicare ID copied to clipboard");
+                      toast.success("HealthVault ID copied to clipboard");
                       }}
                     >
                       UMID: {user.umid}
                     </span>
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/umid:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                      Unique Medicare Identification
+                      Unique HealthVault Identification
                       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
                     </div>
                   </div>
@@ -525,10 +525,10 @@ const Dashboard = () => {
                     whileTap={{ scale: 0.9 }}
                     onClick={() => {
                       navigator.clipboard.writeText(user.umid);
-                      toast.success("Medicare ID copied to clipboard");
+                      toast.success("HealthVault ID copied to clipboard");
                     }}
                     className="ml-2 p-1 bg-white/50 hover:bg-white group-hover:bg-white rounded-full text-blue-600 transition-colors flex-shrink-0"
-                    title="Copy Medicare ID"
+                    title="Copy HealthVault ID"
                   >
                     <Copy size={12} />
                   </motion.button>
@@ -600,13 +600,13 @@ const Dashboard = () => {
                         className="cursor-pointer"
                         onClick={() => {
                         navigator.clipboard.writeText(user.umid);
-                        toast.success("Medicare ID copied to clipboard");
+                        toast.success("HealthVault ID copied to clipboard");
                         }}
                       >
                         UMID: {user.umid}
                       </span>
                       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/umid:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                        Unique Medicare Identification
+                        Unique HealthVault Identification
                         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
                       </div>
                     </div>
@@ -615,10 +615,10 @@ const Dashboard = () => {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => {
                         navigator.clipboard.writeText(user.umid);
-                        toast.success("Medicare ID copied to clipboard");
+                        toast.success("HealthVault ID copied to clipboard");
                       }}
                       className="ml-2 p-1 bg-white/50 hover:bg-white group-hover:bg-white rounded-full text-blue-600 transition-colors"
-                      title="Copy Medicare ID"
+                      title="Copy HealthVault ID"
                     >
                       <Copy size={12} />
                     </motion.button>
@@ -808,7 +808,7 @@ const Dashboard = () => {
                         }`}
                       >
                         {storagePercentage > 90
-                          ? "Thank you for using Medicare! 🎉"
+                          ? "Thank you for using HealthVault! 🎉"
                           : "Wonderful progress with your health records! 🌟"}
                       </p>
                       <p
@@ -996,7 +996,7 @@ const Dashboard = () => {
                         }`}
                       >
                         {storagePercentage > 90
-                          ? "Thank you for using Medicare! 🎉"
+                          ? "Thank you for using HealthVault! 🎉"
                           : "Wonderful progress with your health records! 🌟"}
                       </p>
                       <p
@@ -1596,12 +1596,12 @@ const Dashboard = () => {
           <div className="border-b border-gray-100 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
             <h3 className="font-semibold text-base sm:text-lg text-gray-800 flex items-center">
               <Shield className="mr-1.5 sm:mr-2 text-teal-600 w-4 h-4 sm:w-5 sm:h-5" />{" "}
-              Your Medicare Coverage
+              Your HealthVault Coverage
             </h3>
           </div>
 
           <div className="p-3 sm:p-4 md:p-6">
-            {/* Medicare ID Section - Now with improved responsive layout */}
+            {/* HealthVault ID Section - Now with improved responsive layout */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 sm:mb-6">
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <div className="p-2 sm:p-3 bg-teal-100 rounded-lg">
@@ -1609,7 +1609,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex-1 sm:flex-none">
                   <span className="text-xs sm:text-sm text-gray-500 block sm:inline-block sm:mr-2">
-                    Medicare ID:
+                    HealthVault ID:
                   </span>
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold text-gray-800 text-sm sm:text-base">
@@ -1620,14 +1620,14 @@ const Dashboard = () => {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => {
                         if (!user?.umid) {
-                          toast.error("Medicare ID not available");
+                          toast.error("HealthVault ID not available");
                           return;
                         }
                         navigator.clipboard.writeText(user.umid);
-                        toast.success("Medicare ID copied to clipboard");
+                        toast.success("HealthVault ID copied to clipboard");
                       }}
                       className="p-1 sm:p-1.5 bg-teal-50 hover:bg-teal-100 rounded-full text-teal-600 transition-colors"
-                      title="Copy Medicare ID"
+                      title="Copy HealthVault ID"
                     >
                       <Copy size={12} className="sm:w-4 sm:h-4" />
                     </motion.button>
@@ -1670,7 +1670,7 @@ const Dashboard = () => {
             <div className="border-t border-gray-100 pt-3 sm:pt-4">
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="https://www.medicares.in/plan-compare"
+                  href="https://www.healthvault.in/plan-compare"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs sm:text-sm py-1 px-2 sm:px-3 bg-teal-50 text-teal-700 rounded-full hover:bg-teal-100 transition-colors"
@@ -1720,7 +1720,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-medium text-gray-800">
-                      Medicare Blog
+                      HealthVault Blog
                     </h4>
                     <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
                       Latest news and updates
@@ -1786,7 +1786,7 @@ const Dashboard = () => {
                       Help & Resources
                     </h4>
                     <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
-                      Get assistance with Medicare
+                      Get assistance with HealthVault
                     </p>
                   </div>
                 </div>
@@ -1872,12 +1872,12 @@ const Dashboard = () => {
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
               Our support team is here to help with any questions about your
-              Medicare coverage.
+              HealthVault coverage.
             </p>
 
             <div className="space-y-2">
               <a
-                href="tel:1-800-MEDICARE"
+                href="tel:1-800-HEALTHVAULT"
                 className="block w-full py-1.5 sm:py-2 px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs sm:text-sm"
               >
                 Call Support
@@ -1967,7 +1967,7 @@ const Dashboard = () => {
             transition={{ delay: 1.5 }}
             className="text-xs font-medium text-white px-3 py-1.5 bg-gray-800 rounded-lg whitespace-nowrap shadow-lg"
           >
-            Medicare QR ID
+            HealthVault QR ID
           </motion.span>
         </motion.button>
       </div>
@@ -1977,7 +1977,7 @@ const Dashboard = () => {
         isOpen={isQRCodeModalOpen}
         onClose={() => setIsQRCodeModalOpen(false)}
         userUmid={user?.umid || ""}
-        logo={MedicareLogo}
+        logo={HealthVaultLogo}
       />
 
       {/* Profile Photo Modal Component */}

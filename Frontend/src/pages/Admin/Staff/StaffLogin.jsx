@@ -95,8 +95,8 @@ const StaffLogin = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center space-x-3 mb-12">
-              <img src={logo} alt="Medicare Logo" className="h-10" />
-              <h1 className="text-3xl font-bold">Medicare</h1>
+              <img src={logo} alt="HealthVault Logo" className="h-10" />
+              <h1 className="text-3xl font-bold">HealthVault</h1>
             </div>
             
             <h2 className="text-4xl font-bold mb-4">Welcome to Staff Portal</h2>
@@ -153,8 +153,8 @@ const StaffLogin = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-10">
             <div className="flex items-center space-x-3">
-              <img src={logo} alt="Medicare Logo" className="h-8" />
-              <h1 className="text-2xl font-bold text-blue-600">Medicare</h1>
+              <img src={logo} alt="HealthVault Logo" className="h-8" />
+              <h1 className="text-2xl font-bold text-blue-600">HealthVault</h1>
             </div>
           </div>
           
@@ -286,7 +286,7 @@ const StaffLogin = () => {
             <p>Staff access only. Contact your administrator for support.</p>
             <div className="mt-4 flex items-center justify-center">
               <FaHospital className="text-gray-400 mr-2" />
-              <span>Medicare Staff Portal</span>
+              <span>HealthVault Staff Portal</span>
             </div>
           </motion.div>
         </motion.div>

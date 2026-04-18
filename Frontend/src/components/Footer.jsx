@@ -22,10 +22,10 @@ const Footer = () => {
             <div className="flex items-center mb-4 sm:mb-6">
               <img
                 src={Logo}
-                alt="Medicare Logo"
+                alt="HealthVault Logo"
                 className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full object-cover mr-2 sm:mr-3"
               />
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Medicare</h3>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold">HealthVault</h3>
             </div>
             <p className="text-white/70 text-sm sm:text-base md:text-sm leading-relaxed max-w-xs sm:max-w-md lg:max-w-none">
               Empowering individuals to take control of their health through
@@ -34,7 +34,7 @@ const Footer = () => {
             <div className="flex space-x-3 sm:space-x-4 mt-4 sm:mt-6">
               {/* Social Media Icons */}
               <motion.a
-                href="https://twitter.com/Medicares_india"
+                href="https://twitter.com/HealthVaults_india"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1 }}
@@ -45,7 +45,7 @@ const Footer = () => {
                 <FaTwitter className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
               </motion.a>
               <motion.a
-                href="https://instagram.com/medicaresindia"
+                href="https://instagram.com/healthvaultindia"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1 }}
@@ -134,7 +134,7 @@ const Footer = () => {
                   />
                 </svg>
                 <span className="text-white/70 text-sm sm:text-base md:text-sm group-hover:text-white transition-colors duration-200 break-all sm:break-normal">
-                  support@medicares.in
+                  support@healthvault.in
                 </span>
               </motion.li>
             </ul>
@@ -147,7 +147,7 @@ const Footer = () => {
         {/* Bottom footer */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 md:gap-6">
           <p className="text-xs sm:text-sm text-white/70 text-center sm:text-left">
-            &copy; {new Date().getFullYear()} Medicare. All rights reserved.
+            &copy; {new Date().getFullYear()} HealthVault. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center sm:justify-end space-x-4 sm:space-x-6">
             <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
